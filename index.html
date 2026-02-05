@@ -135,6 +135,8 @@ const COLORS = {
 // ─── Creator Profile ──────────────────────────────────────
 const creator = {
   name: "rosa",
+  username: "fairybaby",
+  profileUrl: "https://character.ai/profile/fairybaby",
   avatar: "RO",
   tier: "Legendary",
   tierProgress: 92,
@@ -147,6 +149,7 @@ const creator = {
   uniqueUsers: 1890000,
   usersGrowth: 9.6,
   topRank: 1,
+  totalCharacters: 500,
   bio: "˗ˏ✎ any pronouns / twenty-four / filo ★‧₊˚ ⋆˙⟡ 500+ characters across anime, fantasy & original worlds",
 };
 
@@ -286,10 +289,10 @@ const tierPerks = [
 ];
 
 const recommendedTopics = [
-  {title:"Demon Slayer Hashira",desc:"KNY is up 52% this month. Your dark anime style would crush a Hashira character.",match:"94%"},
-  {title:"Enemies to Lovers Mafia",desc:"Mafia AU trope is surging (+41%). Your arranged marriage bots already dominate this space.",match:"91%"},
-  {title:"Solo Leveling Hunters",desc:"Solo Leveling hype is massive. Create a hunter rival or partner character.",match:"87%"},
-  {title:"Chainsaw Man Devil",desc:"CSM is trending on the platform. A devil contract character fits your dark romance style.",match:"82%"},
+  {title:"Demon Slayer Hashira",desc:"KNY is up 52% this month. Your dark anime style would crush a Hashira character.",match:94},
+  {title:"Enemies to Lovers Mafia",desc:"Mafia AU trope is surging (+41%). Your arranged marriage bots already dominate this space.",match:91},
+  {title:"Solo Leveling Hunters",desc:"Solo Leveling hype is massive. Create a hunter rival or partner character.",match:87},
+  {title:"Chainsaw Man Devil",desc:"CSM is trending on the platform. A devil contract character fits your dark romance style.",match:82},
 ];
 
 const bestPractices = [
@@ -824,6 +827,7 @@ function DashboardHome({ onNavigate }) {
         React.createElement("div", { className: "flex-1" },
           React.createElement("div", { className: "flex items-center gap-3 flex-wrap" },
             React.createElement("h1", { className: "text-2xl font-bold text-[#f1f0f5]" }, creator.name),
+            React.createElement("a", { href: creator.profileUrl, target: "_blank", rel: "noopener noreferrer", className: "text-purple-400 hover:text-purple-300 text-sm font-medium transition-colors flex items-center gap-1" }, "@" + creator.username, React.createElement(IconExternal, { size: 12 })),
             React.createElement(Badge, { variant: "primary" }, creator.tier),
             React.createElement("span", { className: "text-sm text-[#6b6580]" }, "Joined ", creator.joinDate)
           ),
@@ -839,7 +843,7 @@ function DashboardHome({ onNavigate }) {
             React.createElement("div", { className: "text-xs text-[#6b6580]" }, "Followers")
           ),
           React.createElement("div", null,
-            React.createElement("div", { className: "text-xl font-bold text-[#f1f0f5]" }, creator.characters),
+            React.createElement("div", { className: "text-xl font-bold text-[#f1f0f5]" }, "500+"),
             React.createElement("div", { className: "text-xs text-[#6b6580]" }, "Characters")
           )
         )
@@ -868,10 +872,10 @@ function DashboardHome({ onNavigate }) {
 
     // Stat Cards Row
     React.createElement("div", { className: "grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4" },
-      React.createElement(StatCard, { title: "Monthly Messages", value: "89,432", change: "+18.2%", icon: IconMessage, delay: 0 }),
-      React.createElement(StatCard, { title: "Unique Users", value: "23,891", change: "+12.4%", icon: IconUsers, delay: 1 }),
-      React.createElement(StatCard, { title: "Followers", value: "12,847", change: "+342", icon: IconHeart, delay: 2 }),
-      React.createElement(StatCard, { title: "Season Rank", value: "#1", change: "Top 0.01%", icon: IconTrophy, delay: 3 })
+      React.createElement(StatCard, { title: "Monthly Messages", value: creator.monthlyMessages, change: creator.messagesGrowth, icon: IconMessage, delay: 0 }),
+      React.createElement(StatCard, { title: "Unique Users", value: creator.uniqueUsers, change: creator.usersGrowth, icon: IconUsers, delay: 1 }),
+      React.createElement(StatCard, { title: "Followers", value: creator.followers, change: creator.followersGrowth, icon: IconHeart, delay: 2 }),
+      React.createElement(StatCard, { title: "Total Interactions", value: creator.totalInteractions, change: 14.8, icon: IconTrophy, delay: 3 })
     ),
 
     // Quick Actions Row
@@ -1929,11 +1933,11 @@ const DiscordPage = () => {
             </span>
           </div>
           <div className="flex flex-col items-center gap-3">
-            <button className="inline-flex items-center gap-2 px-8 py-3 rounded-xl font-semibold text-white shadow-lg transition-all hover:scale-105"
-              style={{ background: 'linear-gradient(135deg, #7c3aed 0%, #6366f1 100%)', boxShadow: '0 4px 24px rgba(124,58,237,0.4)' }}>
+            <a href="https://discord.gg/EbeCuJPPwM" target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-2 px-8 py-3 rounded-xl font-semibold text-white shadow-lg transition-all hover:scale-105"
+              style={{ background: 'linear-gradient(135deg, #7c3aed 0%, #6366f1 100%)', boxShadow: '0 4px 24px rgba(124,58,237,0.4)', textDecoration: 'none' }}>
               <IconExternal size={18} /> Join Discord
-            </button>
-            <a href="#" className="text-indigo-200 hover:text-white text-sm transition-colors flex items-center gap-1">
+            </a>
+            <a href="https://discord.gg/EbeCuJPPwM" target="_blank" rel="noopener noreferrer" className="text-indigo-200 hover:text-white text-sm transition-colors flex items-center gap-1">
               Already a member? Open Discord <IconExternal size={14} />
             </a>
           </div>
@@ -2052,7 +2056,10 @@ const RecommendationsPage = () => {
               <div className="w-8 h-8 rounded-lg flex items-center justify-center shrink-0" style={{ background: 'rgba(139,92,246,0.12)' }}>
                 <IconBulb size={16} className="text-[#fbbf24]" />
               </div>
-              <p className="text-sm text-[#f1f0f5] leading-relaxed">{insight}</p>
+              <div>
+                <p className="text-sm text-[#f1f0f5] font-medium mb-1">{insight.title}</p>
+                <p className="text-xs text-[#a09bb0] leading-relaxed">{insight.description}</p>
+              </div>
             </div>
           </Card>
         ))}
@@ -2086,7 +2093,7 @@ const RecommendationsPage = () => {
                       }} />
                     </div>
                   )}
-                  <p className="text-sm text-[#a09bb0] leading-relaxed">{topic.description}</p>
+                  <p className="text-sm text-[#a09bb0] leading-relaxed">{topic.desc}</p>
                   <button className="w-full py-2 rounded-lg text-sm font-medium text-[#a78bfa] border border-[#8b5cf6]/30 hover:bg-[#8b5cf6]/10 transition-colors flex items-center justify-center gap-2">
                     <IconPlus size={14} /> Create Character
                   </button>
@@ -2145,7 +2152,7 @@ const RecommendationsPage = () => {
                   </div>
                   <div>
                     <h4 className="text-[#f1f0f5] font-semibold text-sm mb-1">{practice.title}</h4>
-                    <p className="text-[#a09bb0] text-sm leading-relaxed">{practice.description}</p>
+                    <p className="text-[#a09bb0] text-sm leading-relaxed">{practice.desc}</p>
                   </div>
                 </div>
               </Card>
@@ -2205,10 +2212,10 @@ const CharacterManagementPage = () => {
     <div className="space-y-6">
       {/* Summary Stats Bar */}
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
-        <StatCard title="Total Messages" value={formatNumber(totals.messages)} icon={<IconMessage size={18} className="text-[#8b5cf6]" />} change="+12.4%" />
-        <StatCard title="Total Users" value={formatNumber(totals.users)} icon={<IconUsers size={18} className="text-[#6366f1]" />} change="+8.2%" />
-        <StatCard title="Total Likes" value={formatNumber(totals.likes)} icon={<IconHeart size={18} className="text-[#f87171]" />} change="+15.1%" />
-        <StatCard title="Avg Session" value={`${totals.avgSession}m`} icon={<IconClock size={18} className="text-[#34d399]" />} change="+3.7%" />
+        <StatCard title="Total Messages" value={totals.messages} icon={IconMessage} change={12.4} delay={0} />
+        <StatCard title="Total Users" value={totals.users} icon={IconUsers} change={8.2} delay={1} />
+        <StatCard title="Total Likes" value={totals.likes} icon={IconHeart} change={15.1} delay={2} />
+        <StatCard title="Avg Session" value={parseFloat(totals.avgSession)} suffix="m" icon={IconClock} change={3.7} delay={3} />
       </div>
 
       {/* Header with Actions */}
