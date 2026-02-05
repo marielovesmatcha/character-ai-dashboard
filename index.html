@@ -1,0 +1,2654 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Character.AI — MVP Creators Dashboard</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
+  <script src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
+  <script src="https://unpkg.com/recharts@2.15.0/umd/Recharts.js"></script>
+  <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          fontFamily: { sans: ['Inter', 'system-ui', 'sans-serif'] },
+        }
+      }
+    }
+  </script>
+
+  <style>
+    body {
+      background: #080612;
+      color: #f1f0f5;
+      font-family: 'Inter', system-ui, sans-serif;
+    }
+
+    ::-webkit-scrollbar {
+      width: 6px;
+      height: 6px;
+    }
+    ::-webkit-scrollbar-track {
+      background: #0f0d1a;
+    }
+    ::-webkit-scrollbar-thumb {
+      background: #3d3455;
+      border-radius: 3px;
+    }
+    ::-webkit-scrollbar-thumb:hover {
+      background: #4c4170;
+    }
+
+    @keyframes fadeInUp {
+      from {
+        opacity: 0;
+        transform: translateY(12px);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    @keyframes shimmer {
+      0% {
+        background-position: -200% 0;
+      }
+      100% {
+        background-position: 200% 0;
+      }
+    }
+
+    @keyframes pulse-glow {
+      0%, 100% {
+        box-shadow: 0 0 4px rgba(139, 92, 246, 0.3);
+      }
+      50% {
+        box-shadow: 0 0 12px rgba(139, 92, 246, 0.6);
+      }
+    }
+
+    .animate-fade-in-up {
+      animation: fadeInUp 0.4s ease-out both;
+    }
+    .stagger-1 { animation-delay: 0.05s; }
+    .stagger-2 { animation-delay: 0.10s; }
+    .stagger-3 { animation-delay: 0.15s; }
+    .stagger-4 { animation-delay: 0.20s; }
+    .stagger-5 { animation-delay: 0.25s; }
+    .stagger-6 { animation-delay: 0.30s; }
+
+    .glass-card {
+      background: rgba(26, 22, 37, 0.8);
+      backdrop-filter: blur(12px);
+      border: 1px solid rgba(139, 92, 246, 0.1);
+    }
+
+    .recharts-default-tooltip {
+      background-color: #1a1625 !important;
+      border: 1px solid #2d2640 !important;
+      border-radius: 8px !important;
+      color: #f1f0f5 !important;
+      font-size: 12px !important;
+    }
+
+    .page-transition {
+      animation: fadeInUp 0.3s ease-out both;
+    }
+  </style>
+</head>
+<body>
+  <div id="root"></div>
+  <script type="text/babel">
+
+const { useState, useEffect, useRef, useMemo, useCallback, Fragment } = React;
+const { ResponsiveContainer, LineChart, Line, AreaChart, Area, BarChart, Bar, PieChart, Pie, Cell, RadarChart, Radar, PolarGrid, PolarAngleAxis, PolarRadiusAxis, XAxis, YAxis, CartesianGrid, Tooltip, Legend } = Recharts;
+
+// ─── Colors ───────────────────────────────────────────────
+const COLORS = {
+  purple: '#8b5cf6',
+  indigo: '#6366f1',
+  lavender: '#a78bfa',
+  pink: '#c084fc',
+  periwinkle: '#818cf8',
+  dark: '#4c4170',
+  bg: '#080612',
+  surface1: '#0f0d1a',
+  surface2: '#1a1625',
+  surface3: '#231e30',
+  surface4: '#2d2640',
+  border: '#2d2640',
+  text: '#f1f0f5',
+  textMuted: '#a09bb0',
+  textDim: '#6b6580',
+  green: '#34d399',
+  red: '#f87171',
+  yellow: '#fbbf24',
+};
+
+// ─── Creator Profile ──────────────────────────────────────
+const creator = {
+  name: "AetherForge",
+  avatar: "AF",
+  tier: "Elite",
+  tierProgress: 78,
+  joinDate: "March 2024",
+  totalInteractions: 547382,
+  followers: 12847,
+  followersGrowth: 342,
+  monthlyMessages: 89432,
+  messagesGrowth: 18.2,
+  uniqueUsers: 23891,
+  usersGrowth: 12.4,
+  topRank: 3,
+  bio: "Crafting worlds where anime meets dark fantasy. 10 characters and counting.",
+};
+
+// ─── Characters ───────────────────────────────────────────
+const characters = [
+  { id:1, name:"Kaito Shadowblade", genre:"Dark Anime", tagline:"A wandering swordsman seeking redemption in a fractured world", messages:142300, uniqueUsers:8920, likes:4521, sessions:34200, avgSessionMins:12.4, trend:15, rank:3, status:"thriving", created:"Apr 2024", initials:"KS", scenes:[{name:"Training Grounds",pct:34},{name:"Night Market",pct:28},{name:"Boss Battle",pct:22},{name:"Tavern Rest",pct:16}] },
+  { id:2, name:"Luna Starweaver", genre:"Fantasy", tagline:"An ancient mage awakened in a world that forgot magic", messages:98700, uniqueUsers:6420, likes:3892, sessions:22100, avgSessionMins:11.2, trend:8, rank:7, status:"thriving", created:"Apr 2024", initials:"LS", scenes:[{name:"Enchanted Library",pct:38},{name:"Crystal Caverns",pct:26},{name:"Royal Court",pct:20},{name:"Star Observatory",pct:16}] },
+  { id:3, name:"Sakura Mitsuki", genre:"Romance Anime", tagline:"A transfer student hiding extraordinary powers", messages:87200, uniqueUsers:7100, likes:5100, sessions:19800, avgSessionMins:10.8, trend:22, rank:5, status:"thriving", created:"May 2024", initials:"SM", scenes:[{name:"School Rooftop",pct:32},{name:"Cherry Blossom Park",pct:30},{name:"Festival Night",pct:24},{name:"Classroom",pct:14}] },
+  { id:4, name:"Draven the Eternal", genre:"Dark Fantasy", tagline:"An immortal warlord questioning centuries of conquest", messages:62400, uniqueUsers:4210, likes:2890, sessions:15600, avgSessionMins:9.8, trend:2, rank:12, status:"stable", created:"Jun 2024", initials:"DE", scenes:[{name:"Throne Room",pct:35},{name:"Battlefield",pct:30},{name:"Secret Chamber",pct:20},{name:"War Council",pct:15}] },
+  { id:5, name:"Yuki Tanaka", genre:"Anime School Life", tagline:"Class president by day, underground artist by night", messages:54800, uniqueUsers:5340, likes:3200, sessions:13400, avgSessionMins:8.6, trend:10, rank:15, status:"growing", created:"Jul 2024", initials:"YT", scenes:[{name:"Art Studio",pct:36},{name:"Student Council",pct:28},{name:"Music Room",pct:22},{name:"After School",pct:14}] },
+  { id:6, name:"Zephyr Windrunner", genre:"Adventure Fantasy", tagline:"A sky pirate charting unmapped territories", messages:41200, uniqueUsers:3100, likes:1950, sessions:10200, avgSessionMins:8.2, trend:-1, rank:22, status:"stable", created:"Aug 2024", initials:"ZW", scenes:[{name:"Airship Deck",pct:40},{name:"Sky Port",pct:25},{name:"Storm Chase",pct:20},{name:"Treasure Hunt",pct:15}] },
+  { id:7, name:"Nyx Shadowmere", genre:"Gothic Fantasy", tagline:"A vampire noble navigating a crumbling aristocracy", messages:28900, uniqueUsers:2450, likes:1620, sessions:7200, avgSessionMins:9.4, trend:45, rank:18, status:"growing", created:"Oct 2024", initials:"NS", scenes:[{name:"Gothic Manor",pct:38},{name:"Midnight Ball",pct:28},{name:"Blood Garden",pct:20},{name:"Crypt",pct:14}] },
+  { id:8, name:"Rin Akari", genre:"Slice of Life", tagline:"A barista with a mysterious past and a warm smile", messages:18300, uniqueUsers:2100, likes:980, sessions:5100, avgSessionMins:7.2, trend:-8, rank:35, status:"declining", created:"Sep 2024", initials:"RA", scenes:[{name:"Coffee Shop",pct:45},{name:"City Walk",pct:25},{name:"Rooftop Sunset",pct:18},{name:"Late Night Talk",pct:12}] },
+  { id:9, name:"Thorne Blackwood", genre:"Dark Romance", tagline:"A brooding alchemist with forbidden knowledge", messages:8700, uniqueUsers:1200, likes:670, sessions:2400, avgSessionMins:7.8, trend:0, rank:48, status:"new", created:"Dec 2024", initials:"TB", scenes:[{name:"Alchemy Lab",pct:42},{name:"Forbidden Library",pct:28},{name:"Moonlit Garden",pct:18},{name:"Hidden Passage",pct:12}] },
+  { id:10, name:"Aria Celestine", genre:"Fantasy Healer", tagline:"A divine healer torn between duty and desire", messages:4900, uniqueUsers:890, likes:410, sessions:1300, avgSessionMins:6.8, trend:0, rank:67, status:"new", created:"Jan 2025", initials:"AC", scenes:[{name:"Temple Sanctuary",pct:40},{name:"Healing Gardens",pct:30},{name:"Village Square",pct:18},{name:"Battlefield Triage",pct:12}] },
+];
+
+// ─── Chart Data ───────────────────────────────────────────
+const newUsersData = [
+  {month:'Aug',users:12400},{month:'Sep',users:14200},{month:'Oct',users:16800},
+  {month:'Nov',users:19400},{month:'Dec',users:21200},{month:'Jan',users:23891}
+];
+
+const pageViewsData = [
+  {day:'Jan 1',views:890},{day:'Jan 2',views:1020},{day:'Jan 3',views:1150},{day:'Jan 4',views:1420},{day:'Jan 5',views:1580},
+  {day:'Jan 6',views:1340},{day:'Jan 7',views:1100},{day:'Jan 8',views:980},{day:'Jan 9',views:1240},{day:'Jan 10',views:1380},
+  {day:'Jan 11',views:1620},{day:'Jan 12',views:1890},{day:'Jan 13',views:1750},{day:'Jan 14',views:1480},{day:'Jan 15',views:1320},
+  {day:'Jan 16',views:1190},{day:'Jan 17',views:1410},{day:'Jan 18',views:1680},{day:'Jan 19',views:2010},{day:'Jan 20',views:1920},
+  {day:'Jan 21',views:1650},{day:'Jan 22',views:1430},{day:'Jan 23',views:1290},{day:'Jan 24',views:1520},{day:'Jan 25',views:1780},
+  {day:'Jan 26',views:2100},{day:'Jan 27',views:1960},{day:'Jan 28',views:1740},{day:'Jan 29',views:1580},{day:'Jan 30',views:1850}
+];
+
+const trendingTropes = [
+  {name:"Dark Academia",growth:45,genre:"Aesthetic"},
+  {name:"Enemies to Lovers",growth:38,genre:"Romance"},
+  {name:"Isekai Adventure",growth:32,genre:"Anime"},
+  {name:"Morally Grey Characters",growth:28,genre:"Drama"},
+  {name:"Found Family",growth:24,genre:"Wholesome"},
+  {name:"Cyberpunk Noir",growth:20,genre:"Sci-Fi"},
+  {name:"Magical Realism",growth:18,genre:"Fantasy"},
+  {name:"Slow Burn Romance",growth:15,genre:"Romance"},
+];
+
+const voiceData = [
+  {name:"Default AI",value:42,color:"#8b5cf6"},
+  {name:"Deep Male",value:18,color:"#6366f1"},
+  {name:"Anime Male",value:15,color:"#a78bfa"},
+  {name:"Soft Female",value:12,color:"#c084fc"},
+  {name:"Custom Voice",value:8,color:"#818cf8"},
+  {name:"Other",value:5,color:"#4c4170"},
+];
+
+const nonChatFeatures = [
+  {name:"Imagine",usage:12400,color:"#8b5cf6"},
+  {name:"Group Chats",usage:8900,color:"#6366f1"},
+  {name:"Labs",usage:3200,color:"#a78bfa"},
+  {name:"Voice Calls",usage:2100,color:"#c084fc"},
+];
+
+const leaderboardEntries = [
+  {rank:1,name:"NightWeaver",avatar:"NW",score:9840,messages:"198.4K",tier:"Legendary",isYou:false},
+  {rank:2,name:"StoryCraft",avatar:"SC",score:8920,messages:"156.2K",tier:"Legendary",isYou:false},
+  {rank:3,name:"AetherForge",avatar:"AF",score:8450,messages:"142.3K",tier:"Elite",isYou:true},
+  {rank:4,name:"DreamMaker",avatar:"DM",score:8200,messages:"138.9K",tier:"Elite",isYou:false},
+  {rank:5,name:"PixelSoul",avatar:"PS",score:7650,messages:"121.7K",tier:"Elite",isYou:false},
+  {rank:6,name:"MysticPen",avatar:"MP",score:7100,messages:"108.3K",tier:"Elite",isYou:false},
+  {rank:7,name:"CharaVerse",avatar:"CV",score:6800,messages:"96.1K",tier:"Established",isYou:false},
+  {rank:8,name:"InkWeaver",avatar:"IW",score:6300,messages:"87.5K",tier:"Established",isYou:false},
+  {rank:9,name:"SoulForge",avatar:"SF",score:5900,messages:"79.2K",tier:"Established",isYou:false},
+  {rank:10,name:"VoidWalker",avatar:"VW",score:5400,messages:"72.8K",tier:"Established",isYou:false},
+];
+
+const relatedCreators = [
+  {name:"NightWeaver",avatar:"NW",overlap:72,followers:18420,topChar:"Shadow Empress"},
+  {name:"DreamMaker",avatar:"DM",overlap:64,followers:15200,topChar:"Astral Knight"},
+  {name:"StoryCraft",avatar:"SC",overlap:58,followers:21300,topChar:"Crimson Mage"},
+  {name:"MysticPen",avatar:"MP",overlap:45,followers:9800,topChar:"Fate Weaver"},
+];
+
+const notifications = [
+  {id:1,type:"milestone",message:"Kaito Shadowblade hit 100K messages!",time:"2 hours ago",read:false},
+  {id:2,type:"rank",message:"You ranked #3 in Season 4!",time:"1 day ago",read:false},
+  {id:3,type:"announcement",message:"New: Creator Analytics v2 is now live",time:"2 days ago",read:true},
+  {id:4,type:"growth",message:"Luna Starweaver gained 500 new users this week",time:"3 days ago",read:true},
+  {id:5,type:"milestone",message:"You reached 12,000 followers!",time:"5 days ago",read:true},
+  {id:6,type:"announcement",message:"MVP Creator meetup: Feb 15th — RSVP now",time:"1 week ago",read:true},
+  {id:7,type:"rank",message:"Sakura Mitsuki entered the Top 10 Most Liked",time:"1 week ago",read:true},
+  {id:8,type:"system",message:"Priority Support SLA upgraded to 4-hour response",time:"2 weeks ago",read:true},
+];
+
+const aiInsights = [
+  {title:"Weekend Engagement Spike",description:"Your anime characters get 3.2x more engagement on Saturdays. Consider publishing new characters or updates on Friday evenings to ride the weekend wave.",type:"timing",color:"#8b5cf6"},
+  {title:"Romance is Trending",description:"Sakura Mitsuki's growth rate (+22%) outpaces your portfolio average. Romance anime characters are seeing platform-wide growth — consider creating more in this genre.",type:"trend",color:"#6366f1"},
+  {title:"Voice Adoption Opportunity",description:"Only 13% of your users interact via voice, while top creators average 28%. Adding custom voices to Kaito and Luna could boost session length by ~18%.",type:"opportunity",color:"#a78bfa"},
+  {title:"Scene Diversity Pays Off",description:"Characters with 4+ scenes see 40% longer sessions. Draven and Zephyr could benefit from additional scene variety.",type:"optimization",color:"#c084fc"},
+];
+
+const supportTickets = [
+  {id:"TKT-1042",subject:"Character voice not loading for Kaito",status:"resolved",date:"Jan 28, 2026",priority:"high",response:"Resolved in 2 hours"},
+  {id:"TKT-1038",subject:"Analytics showing incorrect session counts",status:"in_progress",date:"Jan 25, 2026",priority:"medium",response:"Under investigation"},
+  {id:"TKT-1035",subject:"Request: Custom avatar upload for Nyx",status:"open",date:"Jan 22, 2026",priority:"low",response:"Pending review"},
+];
+
+const discordInfo = {
+  members: 2847,
+  online: 342,
+  events: [
+    {title:"MVP Creator Meetup",date:"Feb 15, 2026",time:"3:00 PM EST",attendees:89,type:"meetup"},
+    {title:"Character Building Workshop",date:"Feb 22, 2026",time:"1:00 PM EST",attendees:124,type:"workshop"},
+    {title:"Analytics Deep Dive AMA",date:"Mar 1, 2026",time:"4:00 PM EST",attendees:56,type:"ama"},
+  ],
+  highlights: [
+    {user:"NightWeaver",message:"Just hit 200K messages on Shadow Empress! Thanks for all the support 💜",likes:47},
+    {user:"StoryCraft",message:"Pro tip: Adding scene variety increased my avg session by 35%",likes:83},
+    {user:"DreamMaker",message:"The new analytics dashboard is incredible for tracking growth",likes:62},
+  ],
+};
+
+const knowledgeBase = [
+  {title:"Getting Started with Creator Analytics",category:"Analytics",icon:"chart"},
+  {title:"How to Optimize Character Descriptions",category:"Best Practices",icon:"edit"},
+  {title:"Understanding Your Engagement Score",category:"Analytics",icon:"target"},
+  {title:"Voice Feature Setup Guide",category:"Features",icon:"mic"},
+  {title:"Tier System & Perks Explained",category:"Program",icon:"award"},
+  {title:"Reporting & Resolving Issues",category:"Support",icon:"headphones"},
+];
+
+const tierPerks = [
+  {name:"Priority Support SLA",rising:"48 hours",established:"24 hours",elite:"4 hours",legendary:"1 hour"},
+  {name:"Analytics Access",rising:"Basic",established:"Advanced",elite:"Full Suite",legendary:"Full + API"},
+  {name:"Discord Role",rising:"Member",established:"Verified",elite:"Elite",legendary:"Legendary"},
+  {name:"Character Slots",rising:"10",established:"25",elite:"50",legendary:"Unlimited"},
+  {name:"Custom Voices",rising:"0",established:"2",elite:"5",legendary:"Unlimited"},
+  {name:"Revenue Share",rising:"—",established:"5%",elite:"10%",legendary:"15%"},
+  {name:"Beta Features",rising:"—",established:"—",elite:"Early Access",legendary:"Priority Access"},
+  {name:"Staff Contact",rising:"—",established:"—",elite:"Email",legendary:"Direct Line"},
+];
+
+const recommendedTopics = [
+  {title:"Dark Academia Roommate",desc:"Dark academia is up 45% this month. Create a mysterious scholar character.",match:"92%"},
+  {title:"Isekai Adventurer",desc:"Isekai continues to trend. Your fantasy style would fit perfectly.",match:"88%"},
+  {title:"Enemies to Lovers Rival",desc:"This trope is surging (+38%). Consider a rival character with romantic tension.",match:"85%"},
+  {title:"Cyberpunk Detective",desc:"Cyberpunk noir is emerging. Expand into sci-fi with your dark storytelling.",match:"76%"},
+];
+
+const bestPractices = [
+  {title:"Write Compelling Intros",desc:"First impressions matter. Your character's greeting should hook users in 2 sentences.",icon:"edit"},
+  {title:"Update Characters Weekly",desc:"Active characters rank 3x higher. Add new scenes or dialogue regularly.",icon:"refresh"},
+  {title:"Engage With Your Community",desc:"Creators who respond to feedback see 40% higher retention rates.",icon:"users"},
+  {title:"Use All Available Features",desc:"Characters using voices, scenes, and images get 2.5x more discovery.",icon:"star"},
+];
+
+// ─── Utility Functions & Hooks ────────────────────────────
+const formatNumber = (n) => {
+  if (n >= 1000000) return (n / 1000000).toFixed(1) + 'M';
+  if (n >= 1000) return (n / 1000).toFixed(1) + 'K';
+  return n.toString();
+};
+
+const AnimatedNumber = ({ value, prefix = '', suffix = '' }) => {
+  const [display, setDisplay] = useState(0);
+  useEffect(() => {
+    const duration = 1000;
+    const start = Date.now();
+    const timer = setInterval(() => {
+      const elapsed = Date.now() - start;
+      const progress = Math.min(elapsed / duration, 1);
+      const eased = 1 - Math.pow(1 - progress, 3);
+      setDisplay(Math.floor(value * eased));
+      if (progress >= 1) clearInterval(timer);
+    }, 16);
+    return () => clearInterval(timer);
+  }, [value]);
+  return <span>{prefix}{formatNumber(display)}{suffix}</span>;
+};
+
+const chartTooltipStyle = {
+  backgroundColor: '#1a1625',
+  border: '1px solid #2d2640',
+  borderRadius: '8px',
+  color: '#f1f0f5',
+  fontSize: '12px',
+};
+
+// ─── Icon Components ──────────────────────────────────────
+const IconHome = ({ size = 20, className = '' }) => (
+  <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}>
+    <path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z" />
+    <polyline points="9 22 9 12 15 12 15 22" />
+  </svg>
+);
+
+const IconChart = ({ size = 20, className = '' }) => (
+  <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}>
+    <line x1="18" y1="20" x2="18" y2="10" />
+    <line x1="12" y1="20" x2="12" y2="4" />
+    <line x1="6" y1="20" x2="6" y2="14" />
+  </svg>
+);
+
+const IconTrophy = ({ size = 20, className = '' }) => (
+  <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}>
+    <path d="M6 9H4.5a2.5 2.5 0 0 1 0-5H6" />
+    <path d="M18 9h1.5a2.5 2.5 0 0 0 0-5H18" />
+    <path d="M4 22h16" />
+    <path d="M10 14.66V17c0 .55-.47.98-.97 1.21C7.85 18.75 7 20 7 22" />
+    <path d="M14 14.66V17c0 .55.47.98.97 1.21C16.15 18.75 17 20 17 22" />
+    <path d="M18 2H6v7a6 6 0 0 0 12 0V2Z" />
+  </svg>
+);
+
+const IconShield = ({ size = 20, className = '' }) => (
+  <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}>
+    <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z" />
+  </svg>
+);
+
+const IconHeadphones = ({ size = 20, className = '' }) => (
+  <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}>
+    <path d="M3 18v-6a9 9 0 0 1 18 0v6" />
+    <path d="M21 19a2 2 0 0 1-2 2h-1a2 2 0 0 1-2-2v-3a2 2 0 0 1 2-2h3zM3 19a2 2 0 0 0 2 2h1a2 2 0 0 0 2-2v-3a2 2 0 0 0-2-2H3z" />
+  </svg>
+);
+
+const IconMessage = ({ size = 20, className = '' }) => (
+  <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}>
+    <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z" />
+  </svg>
+);
+
+const IconBulb = ({ size = 20, className = '' }) => (
+  <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}>
+    <path d="M9 18h6" />
+    <path d="M10 22h4" />
+    <path d="M15.09 14c.18-.98.65-1.74 1.41-2.5A4.65 4.65 0 0 0 18 8 6 6 0 0 0 6 8c0 1 .23 2.23 1.5 3.5A4.61 4.61 0 0 1 8.91 14" />
+  </svg>
+);
+
+const IconUsers = ({ size = 20, className = '' }) => (
+  <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}>
+    <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2" />
+    <circle cx="9" cy="7" r="4" />
+    <path d="M23 21v-2a4 4 0 0 0-3-3.87" />
+    <path d="M16 3.13a4 4 0 0 1 0 7.75" />
+  </svg>
+);
+
+const IconBell = ({ size = 20, className = '' }) => (
+  <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}>
+    <path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9" />
+    <path d="M13.73 21a2 2 0 0 1-3.46 0" />
+  </svg>
+);
+
+const IconChevronLeft = ({ size = 20, className = '' }) => (
+  <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}>
+    <polyline points="15 18 9 12 15 6" />
+  </svg>
+);
+
+const IconChevronRight = ({ size = 20, className = '' }) => (
+  <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}>
+    <polyline points="9 18 15 12 9 6" />
+  </svg>
+);
+
+const IconTrendingUp = ({ size = 20, className = '' }) => (
+  <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}>
+    <polyline points="23 6 13.5 15.5 8.5 10.5 1 18" />
+    <polyline points="17 6 23 6 23 12" />
+  </svg>
+);
+
+const IconHeart = ({ size = 20, className = '' }) => (
+  <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}>
+    <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z" />
+  </svg>
+);
+
+const IconEye = ({ size = 20, className = '' }) => (
+  <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}>
+    <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z" />
+    <circle cx="12" cy="12" r="3" />
+  </svg>
+);
+
+const IconSearch = ({ size = 20, className = '' }) => (
+  <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}>
+    <circle cx="11" cy="11" r="8" />
+    <line x1="21" y1="21" x2="16.65" y2="16.65" />
+  </svg>
+);
+
+const IconPlus = ({ size = 20, className = '' }) => (
+  <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}>
+    <line x1="12" y1="5" x2="12" y2="19" />
+    <line x1="5" y1="12" x2="19" y2="12" />
+  </svg>
+);
+
+const IconFilter = ({ size = 20, className = '' }) => (
+  <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}>
+    <polygon points="22 3 2 3 10 12.46 10 19 14 21 14 12.46 22 3" />
+  </svg>
+);
+
+const IconClock = ({ size = 20, className = '' }) => (
+  <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}>
+    <circle cx="12" cy="12" r="10" />
+    <polyline points="12 6 12 12 16 14" />
+  </svg>
+);
+
+const IconCheck = ({ size = 20, className = '' }) => (
+  <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}>
+    <polyline points="20 6 9 17 4 12" />
+  </svg>
+);
+
+const IconX = ({ size = 20, className = '' }) => (
+  <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}>
+    <line x1="18" y1="6" x2="6" y2="18" />
+    <line x1="6" y1="6" x2="18" y2="18" />
+  </svg>
+);
+
+const IconExternal = ({ size = 20, className = '' }) => (
+  <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}>
+    <path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6" />
+    <polyline points="15 3 21 3 21 9" />
+    <line x1="10" y1="14" x2="21" y2="3" />
+  </svg>
+);
+
+const IconSend = ({ size = 20, className = '' }) => (
+  <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}>
+    <line x1="22" y1="2" x2="11" y2="13" />
+    <polygon points="22 2 15 22 11 13 2 9 22 2" />
+  </svg>
+);
+
+const IconBook = ({ size = 20, className = '' }) => (
+  <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}>
+    <path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z" />
+    <path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z" />
+  </svg>
+);
+
+const IconZap = ({ size = 20, className = '' }) => (
+  <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}>
+    <polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2" />
+  </svg>
+);
+
+const IconAward = ({ size = 20, className = '' }) => (
+  <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}>
+    <circle cx="12" cy="8" r="7" />
+    <polyline points="8.21 13.89 7 23 12 20 17 23 15.79 13.88" />
+  </svg>
+);
+
+const IconCrown = ({ size = 20, className = '' }) => (
+  <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}>
+    <path d="M2 4l3 12h14l3-12-6 7-4-7-4 7-6-7z" />
+    <path d="M3 20h18" />
+  </svg>
+);
+
+const IconStar = ({ size = 20, className = '' }) => (
+  <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}>
+    <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2" />
+  </svg>
+);
+
+const IconMenu = ({ size = 20, className = '' }) => (
+  <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}>
+    <line x1="3" y1="12" x2="21" y2="12" />
+    <line x1="3" y1="6" x2="21" y2="6" />
+    <line x1="3" y1="18" x2="21" y2="18" />
+  </svg>
+);
+
+const IconSettings = ({ size = 20, className = '' }) => (
+  <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}>
+    <circle cx="12" cy="12" r="3" />
+    <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z" />
+  </svg>
+);
+
+const IconSparkles = ({ size = 20, className = '' }) => (
+  <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}>
+    <path d="M12 3l1.912 5.813a2 2 0 0 0 1.275 1.275L21 12l-5.813 1.912a2 2 0 0 0-1.275 1.275L12 21l-1.912-5.813a2 2 0 0 0-1.275-1.275L3 12l5.813-1.912a2 2 0 0 0 1.275-1.275L12 3z" />
+    <path d="M5 3v4" />
+    <path d="M19 17v4" />
+    <path d="M3 5h4" />
+    <path d="M17 19h4" />
+  </svg>
+);
+
+const IconTarget = ({ size = 20, className = '' }) => (
+  <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}>
+    <circle cx="12" cy="12" r="10" />
+    <circle cx="12" cy="12" r="6" />
+    <circle cx="12" cy="12" r="2" />
+  </svg>
+);
+
+const IconGlobe = ({ size = 20, className = '' }) => (
+  <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}>
+    <circle cx="12" cy="12" r="10" />
+    <line x1="2" y1="12" x2="22" y2="12" />
+    <path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z" />
+  </svg>
+);
+
+const IconGamepad = ({ size = 20, className = '' }) => (
+  <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}>
+    <line x1="6" y1="12" x2="10" y2="12" />
+    <line x1="8" y1="10" x2="8" y2="14" />
+    <line x1="15" y1="13" x2="15.01" y2="13" />
+    <line x1="18" y1="11" x2="18.01" y2="11" />
+    <rect x="2" y="6" width="20" height="12" rx="2" />
+  </svg>
+);
+
+const IconImage = ({ size = 20, className = '' }) => (
+  <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}>
+    <rect x="3" y="3" width="18" height="18" rx="2" ry="2" />
+    <circle cx="8.5" cy="8.5" r="1.5" />
+    <polyline points="21 15 16 10 5 21" />
+  </svg>
+);
+
+const IconVolume = ({ size = 20, className = '' }) => (
+  <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}>
+    <polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5" />
+    <path d="M19.07 4.93a10 10 0 0 1 0 14.14" />
+    <path d="M15.54 8.46a5 5 0 0 1 0 7.07" />
+  </svg>
+);
+
+const IconHash = ({ size = 20, className = '' }) => (
+  <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}>
+    <line x1="4" y1="9" x2="20" y2="9" />
+    <line x1="4" y1="15" x2="20" y2="15" />
+    <line x1="10" y1="3" x2="8" y2="21" />
+    <line x1="16" y1="3" x2="14" y2="21" />
+  </svg>
+);
+
+const IconCalendar = ({ size = 20, className = '' }) => (
+  <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}>
+    <rect x="3" y="4" width="18" height="18" rx="2" ry="2" />
+    <line x1="16" y1="2" x2="16" y2="6" />
+    <line x1="8" y1="2" x2="8" y2="6" />
+    <line x1="3" y1="10" x2="21" y2="10" />
+  </svg>
+);
+
+const IconInfo = ({ size = 20, className = '' }) => (
+  <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}>
+    <circle cx="12" cy="12" r="10" />
+    <line x1="12" y1="16" x2="12" y2="12" />
+    <line x1="12" y1="8" x2="12.01" y2="8" />
+  </svg>
+);
+
+const IconEdit = ({ size = 20, className = '' }) => (
+  <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}>
+    <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7" />
+    <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z" />
+  </svg>
+);
+
+const IconMic = ({ size = 20, className = '' }) => (
+  <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}>
+    <path d="M12 1a3 3 0 0 0-3 3v8a3 3 0 0 0 6 0V4a3 3 0 0 0-3-3z" />
+    <path d="M19 10v2a7 7 0 0 1-14 0v-2" />
+    <line x1="12" y1="19" x2="12" y2="23" />
+    <line x1="8" y1="23" x2="16" y2="23" />
+  </svg>
+);
+
+const IconRefresh = ({ size = 20, className = '' }) => (
+  <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}>
+    <polyline points="23 4 23 10 17 10" />
+    <polyline points="1 20 1 14 7 14" />
+    <path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10" />
+    <path d="M20.49 15a9 9 0 0 1-14.85 3.36L1 14" />
+  </svg>
+);
+
+const IconArrowUp = ({ size = 20, className = '' }) => (
+  <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}>
+    <line x1="12" y1="19" x2="12" y2="5" />
+    <polyline points="5 12 12 5 19 12" />
+  </svg>
+);
+
+const IconArrowDown = ({ size = 20, className = '' }) => (
+  <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}>
+    <line x1="12" y1="5" x2="12" y2="19" />
+    <polyline points="19 12 12 19 5 12" />
+  </svg>
+);
+
+const IconDisc = ({ size = 20, className = '' }) => (
+  <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}>
+    <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z" />
+    <path d="M8 10h.01" />
+    <path d="M12 10h.01" />
+    <path d="M16 10h.01" />
+  </svg>
+);
+
+// ─── Shared UI Components ─────────────────────────────────
+const Card = ({ children, className = '', onClick, hover = true }) => (
+  <div onClick={onClick} className={`bg-[#1a1625] border border-[#2d2640] rounded-xl p-5 ${hover ? 'hover:border-purple-500/30 hover:bg-[#1e1a2e] transition-all duration-300' : ''} ${onClick ? 'cursor-pointer' : ''} ${className}`}>
+    {children}
+  </div>
+);
+
+const StatCard = ({ title, value, change, icon: Icon, prefix = '', suffix = '', delay = 0 }) => (
+  <div className={`animate-fade-in-up stagger-${delay} bg-[#1a1625] border border-[#2d2640] rounded-xl p-5 hover:border-purple-500/30 hover:bg-[#1e1a2e] transition-all duration-300`}>
+    <div className="flex items-center justify-between mb-3">
+      <span className="text-[#a09bb0] text-sm font-medium">{title}</span>
+      <div className="w-9 h-9 rounded-lg bg-gradient-to-br from-purple-500/20 to-indigo-500/20 flex items-center justify-center">
+        <Icon size={18} className="text-purple-400" />
+      </div>
+    </div>
+    <div className="text-2xl font-bold text-white mb-1">
+      <AnimatedNumber value={value} prefix={prefix} suffix={suffix} />
+    </div>
+    {change !== undefined && (
+      <div className={`flex items-center gap-1 text-sm ${change >= 0 ? 'text-emerald-400' : 'text-red-400'}`}>
+        {change >= 0 ? <IconArrowUp size={14} /> : <IconArrowDown size={14} />}
+        <span>{Math.abs(change)}{typeof change === 'number' && change % 1 !== 0 ? '%' : ''}</span>
+        <span className="text-[#6b6580] ml-1">vs last month</span>
+      </div>
+    )}
+  </div>
+);
+
+const Badge = ({ children, variant = 'purple', className = '' }) => {
+  const variants = {
+    purple: 'bg-purple-500/20 text-purple-300 border-purple-500/30',
+    green: 'bg-emerald-500/20 text-emerald-300 border-emerald-500/30',
+    red: 'bg-red-500/20 text-red-300 border-red-500/30',
+    yellow: 'bg-yellow-500/20 text-yellow-300 border-yellow-500/30',
+    blue: 'bg-blue-500/20 text-blue-300 border-blue-500/30',
+    indigo: 'bg-indigo-500/20 text-indigo-300 border-indigo-500/30',
+  };
+  return (
+    <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium border ${variants[variant] || variants.purple} ${className}`}>
+      {children}
+    </span>
+  );
+};
+
+const SectionTitle = ({ children, subtitle }) => (
+  <div className="mb-5">
+    <h2 className="text-xl font-bold text-white">{children}</h2>
+    {subtitle && <p className="text-[#a09bb0] text-sm mt-1">{subtitle}</p>}
+  </div>
+);
+
+const TabGroup = ({ tabs, active, onChange }) => (
+  <div className="flex gap-1 border-b border-[#2d2640] mb-5">
+    {tabs.map((tab, i) => (
+      <button
+        key={i}
+        onClick={() => onChange(i)}
+        className={`px-4 py-2.5 text-sm font-medium transition-all duration-200 relative ${
+          active === i
+            ? 'text-purple-400'
+            : 'text-[#6b6580] hover:text-[#a09bb0]'
+        }`}
+      >
+        {tab}
+        {active === i && (
+          <div className="absolute bottom-0 left-0 right-0 h-0.5 bg-purple-500 rounded-full" />
+        )}
+      </button>
+    ))}
+  </div>
+);
+
+const ProgressBar = ({ value, max = 100, label = true, className = '' }) => {
+  const [width, setWidth] = useState(0);
+  const pct = Math.min((value / max) * 100, 100);
+  useEffect(() => {
+    const timer = setTimeout(() => setWidth(pct), 100);
+    return () => clearTimeout(timer);
+  }, [pct]);
+  return (
+    <div className={`w-full ${className}`}>
+      <div className="w-full h-2 bg-[#0f0d1a] rounded-full overflow-hidden">
+        <div
+          className="h-full bg-gradient-to-r from-purple-500 to-indigo-500 rounded-full transition-all duration-700 ease-out"
+          style={{ width: `${width}%` }}
+        />
+      </div>
+      {label && (
+        <span className="text-[#6b6580] text-xs mt-1 inline-block">{Math.round(pct)}%</span>
+      )}
+    </div>
+  );
+};
+
+const Avatar = ({ initials, size = 'md', gradient = 'from-purple-500 to-indigo-500' }) => {
+  const sizes = {
+    sm: 'w-8 h-8 text-xs',
+    md: 'w-10 h-10 text-sm',
+    lg: 'w-14 h-14 text-lg',
+  };
+  return (
+    <div className={`${sizes[size]} rounded-full bg-gradient-to-br ${gradient} flex items-center justify-center font-bold text-white shrink-0`}>
+      {initials}
+    </div>
+  );
+};
+
+const StatusBadge = ({ status }) => {
+  const config = {
+    thriving: { variant: 'green', label: 'Thriving' },
+    stable: { variant: 'yellow', label: 'Stable' },
+    growing: { variant: 'blue', label: 'Growing' },
+    declining: { variant: 'red', label: 'Declining' },
+    new: { variant: 'purple', label: 'New' },
+  };
+  const c = config[status] || config.new;
+  return <Badge variant={c.variant}>{c.label}</Badge>;
+};
+
+const EmptyState = ({ icon: Icon, title, description }) => (
+  <div className="flex flex-col items-center justify-center py-12 text-center">
+    <div className="w-14 h-14 rounded-full bg-[#231e30] flex items-center justify-center mb-4">
+      <Icon size={24} className="text-[#6b6580]" />
+    </div>
+    <h3 className="text-white font-semibold mb-1">{title}</h3>
+    {description && <p className="text-[#6b6580] text-sm max-w-xs">{description}</p>}
+  </div>
+);
+
+// ============================================================
+// PART 2: Page Components
+// ============================================================
+
+// --- 1. DashboardHome Component ---
+function DashboardHome({ onNavigate }) {
+  const recentNotifications = notifications.slice(0, 4);
+
+  const quickActions = [
+    { label: "Create Character", icon: IconPlus, gradient: true, action: () => {} },
+    { label: "View Analytics", icon: IconChart, gradient: false, action: () => onNavigate && onNavigate("analytics") },
+    { label: "Check Leaderboard", icon: IconTrophy, gradient: false, action: () => onNavigate && onNavigate("leaderboard") },
+    { label: "Get Support", icon: IconHeadphones, gradient: false, action: () => onNavigate && onNavigate("support") },
+  ];
+
+  const notifIcons = {
+    achievement: IconAward,
+    message: IconMessage,
+    alert: IconBell,
+    milestone: IconStar,
+    system: IconInfo,
+  };
+
+  return React.createElement("div", { className: "space-y-6" },
+
+    // Profile Header
+    React.createElement(Card, { className: "p-6 animate-fade-in-up" },
+      React.createElement("div", { className: "flex flex-col md:flex-row items-start md:items-center gap-6" },
+        React.createElement(Avatar, { initials: "AF", size: "lg", className: "bg-gradient-to-br from-purple-600 to-indigo-600 text-2xl font-bold" }),
+        React.createElement("div", { className: "flex-1" },
+          React.createElement("div", { className: "flex items-center gap-3 flex-wrap" },
+            React.createElement("h1", { className: "text-2xl font-bold text-[#f1f0f5]" }, creator.name),
+            React.createElement(Badge, { variant: "primary" }, creator.tier),
+            React.createElement("span", { className: "text-sm text-[#6b6580]" }, "Joined ", creator.joinDate)
+          ),
+          React.createElement("p", { className: "text-[#a09bb0] mt-2 max-w-2xl" }, creator.bio)
+        ),
+        React.createElement("div", { className: "flex gap-6 text-center" },
+          React.createElement("div", null,
+            React.createElement("div", { className: "text-xl font-bold text-[#f1f0f5]" }, formatNumber(creator.totalInteractions)),
+            React.createElement("div", { className: "text-xs text-[#6b6580]" }, "Interactions")
+          ),
+          React.createElement("div", null,
+            React.createElement("div", { className: "text-xl font-bold text-[#f1f0f5]" }, formatNumber(creator.followers)),
+            React.createElement("div", { className: "text-xs text-[#6b6580]" }, "Followers")
+          ),
+          React.createElement("div", null,
+            React.createElement("div", { className: "text-xl font-bold text-[#f1f0f5]" }, creator.characters),
+            React.createElement("div", { className: "text-xs text-[#6b6580]" }, "Characters")
+          )
+        )
+      )
+    ),
+
+    // Announcement Banner
+    React.createElement(Card, { className: "p-4 animate-fade-in-up stagger-1 border-l-4 border-l-purple-500 bg-gradient-to-r from-[#1a1625] to-[#0f0d1a]" },
+      React.createElement("div", { className: "flex items-center justify-between flex-wrap gap-3" },
+        React.createElement("div", { className: "flex items-center gap-3" },
+          React.createElement(IconSparkles, { size: 22, className: "text-purple-400" }),
+          React.createElement("span", { className: "text-[#f1f0f5] font-medium" },
+            "Season 4 is live! Leaderboard resets monthly. Current rank: ",
+            React.createElement("span", { className: "text-purple-400 font-bold" }, "#3")
+          )
+        ),
+        React.createElement("button", {
+          className: "text-sm text-purple-400 hover:text-purple-300 font-medium flex items-center gap-1 transition-colors",
+          onClick: () => onNavigate && onNavigate("leaderboard")
+        },
+          "View Leaderboard",
+          React.createElement(IconChevronRight, { size: 16 })
+        )
+      )
+    ),
+
+    // Stat Cards Row
+    React.createElement("div", { className: "grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4" },
+      React.createElement(StatCard, { title: "Monthly Messages", value: "89,432", change: "+18.2%", icon: IconMessage, delay: 0 }),
+      React.createElement(StatCard, { title: "Unique Users", value: "23,891", change: "+12.4%", icon: IconUsers, delay: 1 }),
+      React.createElement(StatCard, { title: "Followers", value: "12,847", change: "+342", icon: IconHeart, delay: 2 }),
+      React.createElement(StatCard, { title: "Season Rank", value: "#3", change: "Top 1%", icon: IconTrophy, delay: 3 })
+    ),
+
+    // Quick Actions Row
+    React.createElement("div", { className: "grid grid-cols-2 lg:grid-cols-4 gap-4" },
+      quickActions.map(function(action, i) {
+        return React.createElement(Card, {
+          key: i,
+          hover: true,
+          onClick: action.action,
+          className: "p-5 cursor-pointer transition-all duration-300 hover:scale-[1.02] " +
+            (action.gradient ? "bg-gradient-to-br from-purple-600/20 to-indigo-600/20 border-purple-500/30" : "")
+        },
+          React.createElement("div", { className: "flex flex-col items-center gap-3 text-center" },
+            React.createElement(action.icon, { size: 28, className: action.gradient ? "text-purple-400" : "text-[#a09bb0]" }),
+            React.createElement("span", { className: "text-sm font-medium text-[#f1f0f5]" }, action.label)
+          )
+        );
+      })
+    ),
+
+    // Recent Activity Preview
+    React.createElement(Card, { className: "p-6 animate-fade-in-up stagger-4" },
+      React.createElement("div", { className: "flex items-center justify-between mb-4" },
+        React.createElement("h3", { className: "text-lg font-semibold text-[#f1f0f5]" }, "Recent Activity"),
+        React.createElement("button", {
+          className: "text-sm text-purple-400 hover:text-purple-300 font-medium transition-colors",
+          onClick: () => {}
+        }, "View All")
+      ),
+      React.createElement("div", { className: "space-y-3" },
+        recentNotifications.map(function(notif, i) {
+          var NotifIcon = notifIcons[notif.type] || IconBell;
+          return React.createElement("div", {
+            key: notif.id,
+            className: "flex items-start gap-3 p-3 rounded-lg hover:bg-[#1a1625] transition-colors"
+          },
+            React.createElement("div", { className: "w-8 h-8 rounded-full bg-[#1a1625] flex items-center justify-center flex-shrink-0 mt-0.5" },
+              React.createElement(NotifIcon, { size: 16, className: notif.read ? "text-[#6b6580]" : "text-purple-400" })
+            ),
+            React.createElement("div", { className: "flex-1 min-w-0" },
+              React.createElement("p", { className: "text-sm text-[#f1f0f5] " + (notif.read ? "opacity-70" : "") }, notif.message),
+              React.createElement("p", { className: "text-xs text-[#6b6580] mt-1" }, notif.time)
+            ),
+            !notif.read && React.createElement("div", { className: "w-2 h-2 rounded-full bg-purple-500 flex-shrink-0 mt-2" })
+          );
+        })
+      )
+    )
+  );
+}
+
+
+// --- 2. AnalyticsPage Component ---
+function AnalyticsPage() {
+  const [timePeriod, setTimePeriod] = useState("monthly");
+  const [selectedCharacter, setSelectedCharacter] = useState(0);
+
+  const sortedByMessages = useMemo(function() {
+    return [...characters].sort(function(a, b) {
+      return timePeriod === "monthly" ? b.messages - a.messages : b.totalMessages - a.totalMessages;
+    });
+  }, [timePeriod]);
+
+  const topCharacter = sortedByMessages[0];
+
+  const sortedByLikes = useMemo(function() {
+    return [...characters].sort(function(a, b) { return b.likes - a.likes; });
+  }, []);
+
+  const maxLikes = sortedByLikes.length > 0 ? sortedByLikes[0].likes : 1;
+
+  const sortedBySession = useMemo(function() {
+    return [...characters].sort(function(a, b) { return b.avgSessionMins - a.avgSessionMins; });
+  }, []);
+
+  const totalNewUsers = newUsersData.reduce(function(sum, d) { return sum + d.users; }, 0);
+  const lastTwoMonths = newUsersData.slice(-2);
+  const newUsersGrowth = lastTwoMonths.length === 2
+    ? (((lastTwoMonths[1].users - lastTwoMonths[0].users) / lastTwoMonths[0].users) * 100).toFixed(1)
+    : "0";
+
+  const totalPageViews = pageViewsData.reduce(function(sum, d) { return sum + d.views; }, 0);
+
+  const totalVoice = voiceData.reduce(function(sum, d) { return sum + d.value; }, 0);
+
+  const insightIcons = {
+    timing: IconClock,
+    trend: IconTrendingUp,
+    opportunity: IconZap,
+    optimization: IconTarget,
+  };
+
+  const selectedChar = characters[selectedCharacter];
+
+  return React.createElement("div", { className: "space-y-8" },
+
+    React.createElement(SectionTitle, { subtitle: "Deep dive into your creator performance across all metrics" }, "Analytics Dashboard"),
+
+    // Metric 1: Top Character
+    React.createElement(Card, { className: "p-6 animate-fade-in-up" },
+      React.createElement("div", { className: "flex items-center justify-between mb-6 flex-wrap gap-3" },
+        React.createElement("h3", { className: "text-lg font-semibold text-[#f1f0f5] flex items-center gap-2" },
+          React.createElement(IconCrown, { size: 20, className: "text-yellow-400" }),
+          "Top Character"
+        ),
+        React.createElement(TabGroup, {
+          tabs: ["This Month", "All Time"],
+          active: timePeriod === "monthly" ? "This Month" : "All Time",
+          onChange: function(tab) { setTimePeriod(tab === "This Month" ? "monthly" : "alltime"); }
+        })
+      ),
+      topCharacter && React.createElement("div", { className: "flex flex-col md:flex-row gap-6" },
+        React.createElement("div", { className: "flex-1" },
+          React.createElement("div", { className: "flex items-center gap-3 mb-3" },
+            React.createElement("h4", { className: "text-2xl font-bold text-[#f1f0f5]" }, topCharacter.name),
+            React.createElement(Badge, { variant: "secondary" }, topCharacter.genre)
+          ),
+          React.createElement("div", { className: "grid grid-cols-2 sm:grid-cols-4 gap-4 mt-4" },
+            React.createElement("div", { className: "bg-[#0f0d1a] rounded-lg p-3" },
+              React.createElement("div", { className: "text-xs text-[#6b6580] mb-1" }, "Messages"),
+              React.createElement("div", { className: "text-lg font-bold text-[#f1f0f5]" },
+                formatNumber(timePeriod === "monthly" ? topCharacter.messages : topCharacter.totalMessages))
+            ),
+            React.createElement("div", { className: "bg-[#0f0d1a] rounded-lg p-3" },
+              React.createElement("div", { className: "text-xs text-[#6b6580] mb-1" }, "Users"),
+              React.createElement("div", { className: "text-lg font-bold text-[#f1f0f5]" }, formatNumber(topCharacter.users))
+            ),
+            React.createElement("div", { className: "bg-[#0f0d1a] rounded-lg p-3" },
+              React.createElement("div", { className: "text-xs text-[#6b6580] mb-1" }, "Likes"),
+              React.createElement("div", { className: "text-lg font-bold text-[#f1f0f5]" }, formatNumber(topCharacter.likes))
+            ),
+            React.createElement("div", { className: "bg-[#0f0d1a] rounded-lg p-3" },
+              React.createElement("div", { className: "text-xs text-[#6b6580] mb-1" }, "Rank"),
+              React.createElement("div", { className: "text-lg font-bold text-purple-400" }, "#" + topCharacter.rank)
+            )
+          )
+        ),
+        React.createElement("div", { className: "w-full md:w-48 flex flex-col items-center justify-center" },
+          React.createElement("div", { className: "text-xs text-[#6b6580] mb-2" }, "Composite Score"),
+          React.createElement("div", { className: "relative w-32 h-32" },
+            React.createElement("svg", { viewBox: "0 0 100 100", className: "w-full h-full transform -rotate-90" },
+              React.createElement("circle", { cx: "50", cy: "50", r: "40", fill: "none", stroke: "#1a1625", strokeWidth: "8" }),
+              React.createElement("circle", {
+                cx: "50", cy: "50", r: "40", fill: "none", stroke: "#8b5cf6", strokeWidth: "8",
+                strokeDasharray: (topCharacter.compositeScore / 100 * 251.2) + " 251.2",
+                strokeLinecap: "round"
+              })
+            ),
+            React.createElement("div", { className: "absolute inset-0 flex items-center justify-center" },
+              React.createElement("span", { className: "text-2xl font-bold text-[#f1f0f5]" }, topCharacter.compositeScore)
+            )
+          )
+        )
+      )
+    ),
+
+    // Metric 2: Characters Ranked by Likes
+    React.createElement(Card, { className: "p-6 animate-fade-in-up stagger-1" },
+      React.createElement("h3", { className: "text-lg font-semibold text-[#f1f0f5] mb-4 flex items-center gap-2" },
+        React.createElement(IconHeart, { size: 20, className: "text-red-400" }),
+        "Characters Ranked by Likes"
+      ),
+      React.createElement("div", { className: "space-y-3" },
+        sortedByLikes.map(function(char, i) {
+          var pct = (char.likes / maxLikes) * 100;
+          return React.createElement("div", { key: char.id, className: "flex items-center gap-3" },
+            React.createElement("span", { className: "w-6 text-sm font-bold text-[#6b6580] text-right" }, i + 1),
+            React.createElement("div", { className: "flex-1 min-w-0" },
+              React.createElement("div", { className: "flex items-center gap-2 mb-1" },
+                React.createElement("span", { className: "text-sm font-medium text-[#f1f0f5] truncate" }, char.name),
+                React.createElement(Badge, { variant: "secondary" }, char.genre)
+              ),
+              React.createElement("div", { className: "h-2 bg-[#0f0d1a] rounded-full overflow-hidden" },
+                React.createElement("div", {
+                  className: "h-full rounded-full bg-gradient-to-r from-purple-600 to-indigo-500 transition-all duration-700",
+                  style: { width: pct + "%" }
+                })
+              )
+            ),
+            React.createElement("div", { className: "flex items-center gap-1 w-20 justify-end" },
+              React.createElement(IconHeart, { size: 14, className: "text-red-400" }),
+              React.createElement("span", { className: "text-sm font-medium text-[#f1f0f5]" }, formatNumber(char.likes))
+            )
+          );
+        })
+      )
+    ),
+
+    // Metric 3: New Users Discovering Characters Over Time
+    React.createElement(Card, { className: "p-6 animate-fade-in-up stagger-2" },
+      React.createElement("div", { className: "flex items-center justify-between mb-4 flex-wrap gap-2" },
+        React.createElement("h3", { className: "text-lg font-semibold text-[#f1f0f5] flex items-center gap-2" },
+          React.createElement(IconUsers, { size: 20, className: "text-purple-400" }),
+          "New User Discovery"
+        ),
+        React.createElement("div", { className: "flex gap-4 text-sm" },
+          React.createElement("span", { className: "text-[#a09bb0]" }, "Total: ", React.createElement("span", { className: "text-[#f1f0f5] font-medium" }, formatNumber(totalNewUsers))),
+          React.createElement("span", { className: "text-[#a09bb0]" }, "Growth: ",
+            React.createElement("span", { className: Number(newUsersGrowth) >= 0 ? "text-green-400 font-medium" : "text-red-400 font-medium" },
+              (Number(newUsersGrowth) >= 0 ? "+" : "") + newUsersGrowth + "%"
+            )
+          )
+        )
+      ),
+      React.createElement("div", { className: "h-72" },
+        React.createElement(ResponsiveContainer, { width: "100%", height: "100%" },
+          React.createElement(AreaChart, { data: newUsersData, margin: { top: 5, right: 20, left: 0, bottom: 5 } },
+            React.createElement("defs", null,
+              React.createElement("linearGradient", { id: "newUserGradient", x1: "0", y1: "0", x2: "0", y2: "1" },
+                React.createElement("stop", { offset: "5%", stopColor: "#8b5cf6", stopOpacity: 0.3 }),
+                React.createElement("stop", { offset: "95%", stopColor: "#8b5cf6", stopOpacity: 0 })
+              )
+            ),
+            React.createElement(CartesianGrid, { strokeDasharray: "3 3", stroke: "#1a1625" }),
+            React.createElement(XAxis, { dataKey: "month", stroke: "#6b6580", tick: { fill: "#6b6580", fontSize: 12 } }),
+            React.createElement(YAxis, { stroke: "#6b6580", tick: { fill: "#6b6580", fontSize: 12 } }),
+            React.createElement(Tooltip, { contentStyle: chartTooltipStyle, labelStyle: { color: "#a09bb0" } }),
+            React.createElement(Area, {
+              type: "monotone", dataKey: "users", stroke: "#8b5cf6", strokeWidth: 2,
+              fill: "url(#newUserGradient)", dot: { fill: "#8b5cf6", r: 4 }, activeDot: { r: 6, fill: "#a78bfa" }
+            })
+          )
+        )
+      )
+    ),
+
+    // Metric 4: Most Used Scene Per Character
+    React.createElement(Card, { className: "p-6 animate-fade-in-up stagger-3" },
+      React.createElement("div", { className: "flex items-center justify-between mb-4 flex-wrap gap-3" },
+        React.createElement("h3", { className: "text-lg font-semibold text-[#f1f0f5] flex items-center gap-2" },
+          React.createElement(IconGamepad, { size: 20, className: "text-purple-400" }),
+          "Most Used Scenes"
+        ),
+        React.createElement("select", {
+          value: selectedCharacter,
+          onChange: function(e) { setSelectedCharacter(Number(e.target.value)); },
+          className: "bg-[#0f0d1a] border border-[#2d2640] rounded-lg px-3 py-1.5 text-sm text-[#f1f0f5] focus:border-purple-500 focus:outline-none"
+        },
+          characters.map(function(c, i) {
+            return React.createElement("option", { key: c.id, value: i }, c.name);
+          })
+        )
+      ),
+      selectedChar && selectedChar.scenes && React.createElement("div", { className: "space-y-3" },
+        selectedChar.scenes.map(function(scene, i) {
+          return React.createElement("div", { key: i },
+            React.createElement("div", { className: "flex justify-between text-sm mb-1" },
+              React.createElement("span", { className: "text-[#f1f0f5]" }, scene.name),
+              React.createElement("span", { className: "text-[#a09bb0]" }, scene.pct + "%")
+            ),
+            React.createElement("div", { className: "h-3 bg-[#0f0d1a] rounded-full overflow-hidden" },
+              React.createElement("div", {
+                className: "h-full rounded-full bg-gradient-to-r from-purple-600 to-indigo-500 transition-all duration-500",
+                style: { width: scene.pct + "%" }
+              })
+            )
+          );
+        })
+      )
+    ),
+
+    // Metrics 5 & 6: Two-column layout
+    React.createElement("div", { className: "grid grid-cols-1 lg:grid-cols-2 gap-6" },
+
+      // Metric 5: Trending Tropes/Genres
+      React.createElement(Card, { className: "p-6 animate-fade-in-up stagger-4" },
+        React.createElement("h3", { className: "text-lg font-semibold text-[#f1f0f5] mb-4 flex items-center gap-2" },
+          React.createElement(IconTrendingUp, { size: 20, className: "text-green-400" }),
+          "Trending Tropes & Genres"
+        ),
+        React.createElement("div", { className: "space-y-3" },
+          trendingTropes.map(function(trope, i) {
+            return React.createElement("div", { key: i, className: "flex items-center gap-3" },
+              React.createElement("div", { className: "flex-1 min-w-0" },
+                React.createElement("div", { className: "flex items-center gap-2 mb-1" },
+                  React.createElement("span", { className: "text-sm font-medium text-[#f1f0f5]" }, trope.name),
+                  React.createElement(Badge, { variant: "secondary" }, trope.genre)
+                ),
+                React.createElement("div", { className: "h-2 bg-[#0f0d1a] rounded-full overflow-hidden" },
+                  React.createElement("div", {
+                    className: "h-full rounded-full bg-gradient-to-r from-green-500 to-emerald-400 transition-all duration-500",
+                    style: { width: Math.min(trope.growth * 2, 100) + "%" }
+                  })
+                )
+              ),
+              React.createElement("span", { className: "text-sm font-bold text-green-400 w-14 text-right" }, "+" + trope.growth + "%")
+            );
+          })
+        )
+      ),
+
+      // Metric 6: Creator Page Views Over Time
+      React.createElement(Card, { className: "p-6 animate-fade-in-up stagger-4" },
+        React.createElement("div", { className: "flex items-center justify-between mb-4 flex-wrap gap-2" },
+          React.createElement("h3", { className: "text-lg font-semibold text-[#f1f0f5] flex items-center gap-2" },
+            React.createElement(IconEye, { size: 20, className: "text-purple-400" }),
+            "Page Views (30 Days)"
+          ),
+          React.createElement("span", { className: "text-sm text-[#a09bb0]" }, "Total: ",
+            React.createElement("span", { className: "text-[#f1f0f5] font-medium" }, formatNumber(totalPageViews))
+          )
+        ),
+        React.createElement("div", { className: "h-56" },
+          React.createElement(ResponsiveContainer, { width: "100%", height: "100%" },
+            React.createElement(AreaChart, { data: pageViewsData, margin: { top: 5, right: 10, left: 0, bottom: 5 } },
+              React.createElement("defs", null,
+                React.createElement("linearGradient", { id: "pageViewGradient", x1: "0", y1: "0", x2: "0", y2: "1" },
+                  React.createElement("stop", { offset: "5%", stopColor: "#6366f1", stopOpacity: 0.3 }),
+                  React.createElement("stop", { offset: "95%", stopColor: "#6366f1", stopOpacity: 0 })
+                )
+              ),
+              React.createElement(CartesianGrid, { strokeDasharray: "3 3", stroke: "#1a1625" }),
+              React.createElement(XAxis, { dataKey: "day", stroke: "#6b6580", tick: { fill: "#6b6580", fontSize: 11 }, interval: 4 }),
+              React.createElement(YAxis, { stroke: "#6b6580", tick: { fill: "#6b6580", fontSize: 11 } }),
+              React.createElement(Tooltip, { contentStyle: chartTooltipStyle, labelStyle: { color: "#a09bb0" } }),
+              React.createElement(Area, {
+                type: "monotone", dataKey: "views", stroke: "#6366f1", strokeWidth: 2,
+                fill: "url(#pageViewGradient)"
+              })
+            )
+          )
+        )
+      )
+    ),
+
+    // Metric 7: Related Creators
+    React.createElement(Card, { className: "p-6 animate-fade-in-up" },
+      React.createElement("h3", { className: "text-lg font-semibold text-[#f1f0f5] mb-4 flex items-center gap-2" },
+        React.createElement(IconGlobe, { size: 20, className: "text-purple-400" }),
+        "Related Creators"
+      ),
+      React.createElement("div", { className: "grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4" },
+        relatedCreators.map(function(rc) {
+          return React.createElement(Card, { key: rc.id, className: "p-4 hover:border-purple-500/30 transition-colors", hover: true },
+            React.createElement("div", { className: "flex items-center gap-3 mb-3" },
+              React.createElement(Avatar, { initials: rc.name.split(" ").map(function(w) { return w[0]; }).join("").slice(0,2), size: "sm" }),
+              React.createElement("div", null,
+                React.createElement("div", { className: "text-sm font-medium text-[#f1f0f5]" }, rc.name),
+                React.createElement("div", { className: "text-xs text-[#6b6580]" }, formatNumber(rc.followers), " followers")
+              )
+            ),
+            React.createElement("div", { className: "mb-2" },
+              React.createElement("div", { className: "flex justify-between text-xs mb-1" },
+                React.createElement("span", { className: "text-[#a09bb0]" }, "Shared audience"),
+                React.createElement("span", { className: "text-purple-400 font-medium" }, rc.overlap + "%")
+              ),
+              React.createElement(ProgressBar, { value: rc.overlap, max: 100, color: "purple" })
+            ),
+            React.createElement("div", { className: "text-xs text-[#6b6580]" }, "Top: ",
+              React.createElement("span", { className: "text-[#a09bb0]" }, rc.topCharacter)
+            )
+          );
+        })
+      )
+    ),
+
+    // Metrics 8 & 9: Two-column layout
+    React.createElement("div", { className: "grid grid-cols-1 lg:grid-cols-2 gap-6" },
+
+      // Metric 8: Non-Chat Feature Usage
+      React.createElement(Card, { className: "p-6 animate-fade-in-up" },
+        React.createElement("h3", { className: "text-lg font-semibold text-[#f1f0f5] mb-4 flex items-center gap-2" },
+          React.createElement(IconZap, { size: 20, className: "text-yellow-400" }),
+          "Non-Chat Feature Usage"
+        ),
+        React.createElement("div", { className: "h-64" },
+          React.createElement(ResponsiveContainer, { width: "100%", height: "100%" },
+            React.createElement(BarChart, {
+              data: nonChatFeatures, layout: "vertical",
+              margin: { top: 5, right: 20, left: 80, bottom: 5 }
+            },
+              React.createElement(CartesianGrid, { strokeDasharray: "3 3", stroke: "#1a1625", horizontal: false }),
+              React.createElement(XAxis, { type: "number", stroke: "#6b6580", tick: { fill: "#6b6580", fontSize: 11 } }),
+              React.createElement(YAxis, { type: "category", dataKey: "feature", stroke: "#6b6580", tick: { fill: "#a09bb0", fontSize: 11 }, width: 75 }),
+              React.createElement(Tooltip, { contentStyle: chartTooltipStyle, labelStyle: { color: "#a09bb0" } }),
+              React.createElement(Bar, { dataKey: "usage", fill: "#8b5cf6", radius: [0, 4, 4, 0], barSize: 20 })
+            )
+          )
+        )
+      ),
+
+      // Metric 9: Average Interaction Per User Per Character
+      React.createElement(Card, { className: "p-6 animate-fade-in-up" },
+        React.createElement("h3", { className: "text-lg font-semibold text-[#f1f0f5] mb-4 flex items-center gap-2" },
+          React.createElement(IconClock, { size: 20, className: "text-purple-400" }),
+          "Avg Session Minutes per Character"
+        ),
+        React.createElement("div", { className: "h-72" },
+          React.createElement(ResponsiveContainer, { width: "100%", height: "100%" },
+            React.createElement(BarChart, {
+              data: sortedBySession, layout: "vertical",
+              margin: { top: 5, right: 20, left: 100, bottom: 5 }
+            },
+              React.createElement(CartesianGrid, { strokeDasharray: "3 3", stroke: "#1a1625", horizontal: false }),
+              React.createElement(XAxis, { type: "number", stroke: "#6b6580", tick: { fill: "#6b6580", fontSize: 11 }, unit: " min" }),
+              React.createElement(YAxis, { type: "category", dataKey: "name", stroke: "#6b6580", tick: { fill: "#a09bb0", fontSize: 10 }, width: 95 }),
+              React.createElement(Tooltip, {
+                contentStyle: chartTooltipStyle, labelStyle: { color: "#a09bb0" },
+                formatter: function(v) { return [v + " min", "Avg Session"]; }
+              }),
+              React.createElement(Bar, { dataKey: "avgSessionMins", fill: "#6366f1", radius: [0, 4, 4, 0], barSize: 18 })
+            )
+          )
+        )
+      )
+    ),
+
+    // Metric 10: Voice Usage Breakdown
+    React.createElement(Card, { className: "p-6 animate-fade-in-up" },
+      React.createElement("h3", { className: "text-lg font-semibold text-[#f1f0f5] mb-4 flex items-center gap-2" },
+        React.createElement(IconVolume, { size: 20, className: "text-purple-400" }),
+        "Voice Usage Breakdown"
+      ),
+      React.createElement("div", { className: "flex flex-col md:flex-row items-center gap-8" },
+        React.createElement("div", { className: "relative w-64 h-64" },
+          React.createElement(ResponsiveContainer, { width: "100%", height: "100%" },
+            React.createElement(PieChart, null,
+              React.createElement(Pie, {
+                data: voiceData, cx: "50%", cy: "50%",
+                innerRadius: 70, outerRadius: 100,
+                paddingAngle: 3, dataKey: "value",
+                stroke: "none"
+              },
+                voiceData.map(function(entry, index) {
+                  return React.createElement(Cell, { key: index, fill: entry.color });
+                })
+              ),
+              React.createElement(Tooltip, { contentStyle: chartTooltipStyle })
+            )
+          ),
+          React.createElement("div", { className: "absolute inset-0 flex flex-col items-center justify-center" },
+            React.createElement("span", { className: "text-3xl font-bold text-[#f1f0f5]" }, totalVoice + "%"),
+            React.createElement("span", { className: "text-xs text-[#6b6580]" }, "Use Voice")
+          )
+        ),
+        React.createElement("div", { className: "flex flex-col gap-3" },
+          voiceData.map(function(v, i) {
+            return React.createElement("div", { key: i, className: "flex items-center gap-3" },
+              React.createElement("div", { className: "w-3 h-3 rounded-full", style: { backgroundColor: v.color } }),
+              React.createElement("span", { className: "text-sm text-[#f1f0f5] w-36" }, v.name),
+              React.createElement("span", { className: "text-sm font-medium text-[#a09bb0]" }, v.value + "%")
+            );
+          })
+        )
+      )
+    ),
+
+    // Metric 11: AI-Generated Insight Cards
+    React.createElement(Card, { className: "p-6 animate-fade-in-up" },
+      React.createElement("h3", { className: "text-lg font-semibold text-[#f1f0f5] mb-4 flex items-center gap-2" },
+        React.createElement(IconBulb, { size: 20, className: "text-yellow-400" }),
+        "AI-Generated Insights"
+      ),
+      React.createElement("div", { className: "grid grid-cols-1 md:grid-cols-2 gap-4" },
+        aiInsights.map(function(insight, i) {
+          var InsightIcon = insightIcons[insight.type] || IconBulb;
+          return React.createElement("div", {
+            key: i,
+            className: "bg-[#0f0d1a] rounded-lg p-4 border-l-4 transition-colors hover:bg-[#1a1625]",
+            style: { borderLeftColor: insight.color }
+          },
+            React.createElement("div", { className: "flex items-start gap-3" },
+              React.createElement("div", { className: "w-8 h-8 rounded-lg flex items-center justify-center flex-shrink-0", style: { backgroundColor: insight.color + "20" } },
+                React.createElement(InsightIcon, { size: 16, className: "text-[" + insight.color + "]" })
+              ),
+              React.createElement("div", null,
+                React.createElement("h4", { className: "text-sm font-bold text-[#f1f0f5] mb-1" }, insight.title),
+                React.createElement("p", { className: "text-xs text-[#a09bb0] leading-relaxed" }, insight.description)
+              )
+            )
+          );
+        })
+      )
+    )
+  );
+}
+
+
+// --- 3. LeaderboardPage Component ---
+function LeaderboardPage() {
+  const [category, setCategory] = useState("Most Messages");
+  const categories = ["Most Messages", "Most Liked", "Fastest Growing", "Highest Retention"];
+
+  const sortedEntries = useMemo(function() {
+    var entries = [...leaderboardEntries];
+    switch (category) {
+      case "Most Liked":
+        return entries.sort(function(a, b) { return b.score * 0.9 - a.score * 0.9 + (b.rank < a.rank ? -50 : 50); });
+      case "Fastest Growing":
+        return entries.sort(function(a, b) { return b.messages * 1.1 - a.messages * 1.1; }).map(function(e, i) {
+          return Object.assign({}, e, { rank: i + 1 });
+        });
+      case "Highest Retention":
+        return entries.sort(function(a, b) { return b.score * 1.05 - a.score * 1.05; }).map(function(e, i) {
+          return Object.assign({}, e, { rank: i + 1 });
+        });
+      default:
+        return entries;
+    }
+  }, [category]);
+
+  var top3 = sortedEntries.slice(0, 3);
+  var podiumOrder = top3.length >= 3 ? [top3[1], top3[0], top3[2]] : top3;
+  var podiumColors = ["#C0C0C0", "#FFD700", "#CD7F32"];
+  var podiumHeights = ["h-28", "h-36", "h-24"];
+
+  var yourEntry = sortedEntries.find(function(e) { return e.isYou; });
+
+  var tierColors = {
+    Legendary: "text-yellow-400",
+    Elite: "text-purple-400",
+    Established: "text-blue-400",
+    Rising: "text-green-400",
+  };
+
+  return React.createElement("div", { className: "space-y-6" },
+
+    React.createElement(SectionTitle, { subtitle: "Compete with top creators each season" }, "Seasonal Leaderboard"),
+
+    // Season Header
+    React.createElement(Card, { className: "p-6 text-center animate-fade-in-up" },
+      React.createElement("div", { className: "flex items-center justify-center gap-3 mb-2" },
+        React.createElement(IconCalendar, { size: 24, className: "text-purple-400" }),
+        React.createElement("h2", { className: "text-2xl font-bold text-[#f1f0f5]" }, "Season 4: Winter 2025\u20132026")
+      ),
+      React.createElement("p", { className: "text-[#a09bb0] mb-2" }, "Compete against other creators for seasonal rewards and bragging rights."),
+      React.createElement("div", { className: "inline-flex items-center gap-2 bg-[#0f0d1a] px-4 py-2 rounded-full" },
+        React.createElement(IconClock, { size: 16, className: "text-yellow-400" }),
+        React.createElement("span", { className: "text-sm text-[#f1f0f5]" }, "Resets Feb 28, 2026")
+      )
+    ),
+
+    // Category Tabs
+    React.createElement("div", { className: "animate-fade-in-up stagger-1" },
+      React.createElement(TabGroup, { tabs: categories, active: category, onChange: setCategory })
+    ),
+
+    // Top 3 Podium
+    React.createElement(Card, { className: "p-6 animate-fade-in-up stagger-2" },
+      React.createElement("div", { className: "flex items-end justify-center gap-4 mb-4 pt-4" },
+        podiumOrder.map(function(entry, i) {
+          var isFirst = i === 1;
+          var isYou = entry.isYou;
+          var accentColor = podiumColors[i];
+          return React.createElement("div", {
+            key: entry.rank,
+            className: "flex flex-col items-center " + (isFirst ? "order-2" : i === 0 ? "order-1" : "order-3")
+          },
+            isFirst && React.createElement(IconCrown, { size: 28, className: "text-yellow-400 mb-1" }),
+            React.createElement("div", {
+              className: "w-16 h-16 rounded-full flex items-center justify-center text-lg font-bold mb-2 " +
+                (isYou ? "ring-2 ring-purple-500 ring-offset-2 ring-offset-[#0f0d1a]" : ""),
+              style: { backgroundColor: accentColor + "30", color: accentColor, border: "2px solid " + accentColor }
+            }, entry.name.split(" ").map(function(w) { return w[0]; }).join("").slice(0, 2)),
+            React.createElement("span", {
+              className: "text-sm font-bold mb-1 " + (isYou ? "text-purple-400" : "text-[#f1f0f5]")
+            }, entry.name, isYou ? " (You)" : ""),
+            React.createElement("span", { className: "text-xs text-[#a09bb0] mb-2" }, formatNumber(entry.score) + " pts"),
+            React.createElement("div", {
+              className: "w-24 rounded-t-lg flex items-center justify-center " + podiumHeights[i],
+              style: { backgroundColor: accentColor + "20", borderTop: "3px solid " + accentColor }
+            },
+              React.createElement("span", { className: "text-2xl font-bold", style: { color: accentColor } }, "#" + entry.rank)
+            )
+          );
+        })
+      )
+    ),
+
+    // Full Ranking Table
+    React.createElement(Card, { className: "p-6 animate-fade-in-up stagger-3 overflow-x-auto" },
+      React.createElement("h3", { className: "text-lg font-semibold text-[#f1f0f5] mb-4" }, "Full Rankings"),
+      React.createElement("table", { className: "w-full" },
+        React.createElement("thead", null,
+          React.createElement("tr", { className: "text-left text-xs text-[#6b6580] border-b border-[#1a1625]" },
+            React.createElement("th", { className: "pb-3 pr-4 w-16" }, "Rank"),
+            React.createElement("th", { className: "pb-3 pr-4" }, "Creator"),
+            React.createElement("th", { className: "pb-3 pr-4 text-right" }, "Score"),
+            React.createElement("th", { className: "pb-3 pr-4 text-right" }, "Messages"),
+            React.createElement("th", { className: "pb-3 text-right" }, "Tier")
+          )
+        ),
+        React.createElement("tbody", null,
+          sortedEntries.map(function(entry, i) {
+            return React.createElement("tr", {
+              key: entry.rank,
+              className: (entry.isYou
+                ? "bg-purple-500/10 border border-purple-500/30 "
+                : i % 2 === 0 ? "bg-transparent " : "bg-[#0f0d1a]/50 ") +
+                "transition-colors hover:bg-[#1a1625]"
+            },
+              React.createElement("td", { className: "py-3 pr-4" },
+                React.createElement("span", {
+                  className: "text-sm font-bold " +
+                    (entry.rank === 1 ? "text-yellow-400" : entry.rank === 2 ? "text-gray-300" : entry.rank === 3 ? "text-amber-600" : "text-[#6b6580]")
+                }, "#" + entry.rank)
+              ),
+              React.createElement("td", { className: "py-3 pr-4" },
+                React.createElement("div", { className: "flex items-center gap-2" },
+                  React.createElement(Avatar, {
+                    initials: entry.name.split(" ").map(function(w) { return w[0]; }).join("").slice(0, 2),
+                    size: "sm"
+                  }),
+                  React.createElement("span", {
+                    className: "text-sm font-medium " + (entry.isYou ? "text-purple-400" : "text-[#f1f0f5]")
+                  }, entry.name, entry.isYou ? " (You)" : "")
+                )
+              ),
+              React.createElement("td", { className: "py-3 pr-4 text-right text-sm text-[#f1f0f5]" }, formatNumber(entry.score)),
+              React.createElement("td", { className: "py-3 pr-4 text-right text-sm text-[#a09bb0]" }, formatNumber(entry.messages)),
+              React.createElement("td", { className: "py-3 text-right" },
+                React.createElement("span", {
+                  className: "text-xs font-medium " + (tierColors[entry.tier] || "text-[#a09bb0]")
+                }, entry.tier)
+              )
+            );
+          })
+        )
+      )
+    ),
+
+    // Your Rank Card
+    yourEntry && React.createElement(Card, { className: "p-6 animate-fade-in-up stagger-4 border-purple-500/30 bg-gradient-to-r from-purple-500/10 to-indigo-500/10" },
+      React.createElement("div", { className: "flex flex-col md:flex-row items-center justify-between gap-4" },
+        React.createElement("div", { className: "text-center md:text-left" },
+          React.createElement("h3", { className: "text-lg font-bold text-[#f1f0f5]" }, "Your Position: ",
+            React.createElement("span", { className: "text-purple-400" }, "#" + yourEntry.rank),
+            " of 1,247 creators"
+          ),
+          React.createElement("p", { className: "text-sm text-[#a09bb0] mt-1" }, "842 points to reach #2")
+        ),
+        React.createElement("div", { className: "flex items-center gap-2 bg-[#0f0d1a] px-4 py-2 rounded-lg" },
+          React.createElement(IconArrowUp, { size: 16, className: "text-green-400" }),
+          React.createElement("span", { className: "text-sm text-green-400 font-medium" }, "Up 2 positions from last season")
+        )
+      )
+    )
+  );
+}
+
+
+// --- 4. TierStatusPage Component ---
+function TierStatusPage() {
+  var currentMetrics = [
+    { label: "Total Interactions", current: 547000, required: 750000 },
+    { label: "Unique Users", current: 23800, required: 35000 },
+    { label: "Active Months", current: 10, required: 12 },
+    { label: "Community Score", current: 92, required: 95 },
+  ];
+
+  var milestones = [
+    { label: "500K Total Interactions", achieved: true },
+    { label: "10K Followers", achieved: true },
+    { label: "Top 5 Season Rank", achieved: true },
+    { label: "1M Interactions", achieved: false, progress: 55 },
+  ];
+
+  var progressToLegendary = 78;
+
+  return React.createElement("div", { className: "space-y-6" },
+
+    React.createElement(SectionTitle, { subtitle: "Your tier status and progression toward the next level" }, "Tier Status"),
+
+    // Current Tier Display
+    React.createElement(Card, { className: "p-8 text-center animate-fade-in-up bg-gradient-to-br from-purple-600/20 to-indigo-600/20 border-purple-500/30" },
+      React.createElement("div", { className: "relative inline-block mb-4" },
+        React.createElement("div", { className: "w-24 h-24 rounded-full bg-gradient-to-br from-purple-600 to-indigo-600 flex items-center justify-center mx-auto shadow-lg shadow-purple-500/30" },
+          React.createElement(IconShield, { size: 40, className: "text-white" })
+        ),
+        React.createElement("div", { className: "absolute -top-2 -right-2 w-8 h-8 bg-yellow-500 rounded-full flex items-center justify-center" },
+          React.createElement(IconStar, { size: 16, className: "text-white" })
+        )
+      ),
+      React.createElement("h2", { className: "text-3xl font-bold text-[#f1f0f5] mb-1" }, "Elite"),
+      React.createElement("p", { className: "text-[#a09bb0]" }, "Since October 2024"),
+      React.createElement("div", { className: "flex justify-center gap-1 mt-3" },
+        [1,2,3,4].map(function(s) {
+          return React.createElement(IconStar, { key: s, size: 18, className: "text-purple-400" });
+        }),
+        React.createElement(IconStar, { size: 18, className: "text-[#2d2640]" })
+      )
+    ),
+
+    // Progress to Next Tier
+    React.createElement(Card, { className: "p-6 animate-fade-in-up stagger-1" },
+      React.createElement("div", { className: "flex items-center justify-between mb-4" },
+        React.createElement("h3", { className: "text-lg font-semibold text-[#f1f0f5]" }, "Progress to Legendary"),
+        React.createElement("span", { className: "text-sm text-purple-400 font-medium" }, progressToLegendary + "% Complete")
+      ),
+      React.createElement("div", { className: "mb-4" },
+        React.createElement(ProgressBar, { value: progressToLegendary, max: 100, color: "purple" })
+      ),
+      React.createElement("p", { className: "text-xs text-[#6b6580] italic mb-6" },
+        "Legendary tier is invite-only. Meeting metrics makes you eligible for consideration."
+      ),
+      React.createElement("div", { className: "grid grid-cols-1 sm:grid-cols-2 gap-4" },
+        currentMetrics.map(function(m, i) {
+          var pct = Math.min((m.current / m.required) * 100, 100);
+          var isMet = m.current >= m.required;
+          return React.createElement("div", { key: i, className: "bg-[#0f0d1a] rounded-lg p-4" },
+            React.createElement("div", { className: "flex justify-between text-sm mb-2" },
+              React.createElement("span", { className: "text-[#a09bb0]" }, m.label),
+              React.createElement("span", { className: isMet ? "text-green-400 font-medium" : "text-[#f1f0f5] font-medium" },
+                formatNumber(m.current), " / ", formatNumber(m.required)
+              )
+            ),
+            React.createElement("div", { className: "h-2 bg-[#1a1625] rounded-full overflow-hidden" },
+              React.createElement("div", {
+                className: "h-full rounded-full transition-all duration-700 " + (isMet ? "bg-green-500" : "bg-gradient-to-r from-purple-600 to-indigo-500"),
+                style: { width: pct + "%" }
+              })
+            ),
+            isMet && React.createElement("div", { className: "flex items-center gap-1 mt-1" },
+              React.createElement(IconCheck, { size: 12, className: "text-green-400" }),
+              React.createElement("span", { className: "text-xs text-green-400" }, "Requirement met")
+            )
+          );
+        })
+      )
+    ),
+
+    // Tier Comparison Table
+    React.createElement(Card, { className: "p-6 animate-fade-in-up stagger-2 overflow-x-auto" },
+      React.createElement("h3", { className: "text-lg font-semibold text-[#f1f0f5] mb-4" }, "Tier Comparison"),
+      React.createElement("table", { className: "w-full text-sm" },
+        React.createElement("thead", null,
+          React.createElement("tr", { className: "border-b border-[#1a1625]" },
+            React.createElement("th", { className: "pb-3 text-left text-[#6b6580] font-medium" }, "Perk"),
+            React.createElement("th", { className: "pb-3 text-center text-[#6b6580] font-medium" }, "Rising"),
+            React.createElement("th", { className: "pb-3 text-center text-[#6b6580] font-medium" }, "Established"),
+            React.createElement("th", { className: "pb-3 text-center text-purple-400 font-bold bg-purple-500/10 rounded-t-lg" }, "Elite"),
+            React.createElement("th", { className: "pb-3 text-center text-yellow-400 font-medium" }, "Legendary")
+          )
+        ),
+        React.createElement("tbody", null,
+          tierPerks.map(function(perk, i) {
+            return React.createElement("tr", {
+              key: i,
+              className: "border-b border-[#0f0d1a] " + (i % 2 === 0 ? "" : "bg-[#0f0d1a]/30")
+            },
+              React.createElement("td", { className: "py-3 pr-4 text-[#f1f0f5]" }, perk.name),
+              React.createElement("td", { className: "py-3 text-center text-[#a09bb0]" }, perk.rising),
+              React.createElement("td", { className: "py-3 text-center text-[#a09bb0]" }, perk.established),
+              React.createElement("td", { className: "py-3 text-center text-[#f1f0f5] font-medium bg-purple-500/10" }, perk.elite),
+              React.createElement("td", { className: "py-3 text-center text-yellow-400" }, perk.legendary)
+            );
+          })
+        )
+      )
+    ),
+
+    // Milestone Celebrations
+    React.createElement(Card, { className: "p-6 animate-fade-in-up stagger-3" },
+      React.createElement("h3", { className: "text-lg font-semibold text-[#f1f0f5] mb-4 flex items-center gap-2" },
+        React.createElement(IconAward, { size: 20, className: "text-yellow-400" }),
+        "Milestones"
+      ),
+      React.createElement("div", { className: "grid grid-cols-1 sm:grid-cols-2 gap-4" },
+        milestones.map(function(ms, i) {
+          return React.createElement(Card, { key: i, className: "p-4 " + (ms.achieved ? "border-green-500/20" : "border-[#2d2640]") },
+            React.createElement("div", { className: "flex items-center gap-3" },
+              ms.achieved
+                ? React.createElement("div", { className: "w-10 h-10 rounded-full bg-green-500/20 flex items-center justify-center flex-shrink-0" },
+                    React.createElement(IconCheck, { size: 20, className: "text-green-400" })
+                  )
+                : React.createElement("div", { className: "w-10 h-10 rounded-full bg-[#1a1625] flex items-center justify-center flex-shrink-0" },
+                    React.createElement(IconTarget, { size: 20, className: "text-[#6b6580]" })
+                  ),
+              React.createElement("div", { className: "flex-1" },
+                React.createElement("span", { className: "text-sm font-medium " + (ms.achieved ? "text-[#f1f0f5]" : "text-[#a09bb0]") }, ms.label),
+                ms.achieved
+                  ? React.createElement("p", { className: "text-xs text-green-400 mt-0.5" }, "Achieved!")
+                  : React.createElement("div", { className: "mt-1.5" },
+                      React.createElement("div", { className: "flex justify-between text-xs mb-1" },
+                        React.createElement("span", { className: "text-[#6b6580]" }, "In progress"),
+                        React.createElement("span", { className: "text-[#a09bb0]" }, ms.progress + "%")
+                      ),
+                      React.createElement(ProgressBar, { value: ms.progress, max: 100, color: "purple" })
+                    )
+              )
+            )
+          );
+        })
+      )
+    )
+  );
+}
+
+
+// --- 5. SupportPage Component ---
+function SupportPage() {
+  const [ticketForm, setTicketForm] = useState({
+    subject: "",
+    category: "Bug Report",
+    priority: "Medium",
+    description: "",
+  });
+
+  const [formSubmitted, setFormSubmitted] = useState(false);
+
+  function handleFormChange(field, value) {
+    setTicketForm(function(prev) {
+      var next = Object.assign({}, prev);
+      next[field] = value;
+      return next;
+    });
+  }
+
+  function handleSubmit(e) {
+    e.preventDefault();
+    setFormSubmitted(true);
+    setTimeout(function() { setFormSubmitted(false); }, 3000);
+    setTicketForm({ subject: "", category: "Bug Report", priority: "Medium", description: "" });
+  }
+
+  const [kbSearch, setKbSearch] = useState("");
+  const filteredKb = knowledgeBase.filter(function(a) {
+    return a.title.toLowerCase().includes(kbSearch.toLowerCase()) ||
+      a.category.toLowerCase().includes(kbSearch.toLowerCase());
+  });
+
+  var statusColors = {
+    open: "warning",
+    in_progress: "info",
+    resolved: "success",
+  };
+
+  var priorityColors = {
+    Low: "text-green-400 bg-green-400/10",
+    Medium: "text-yellow-400 bg-yellow-400/10",
+    High: "text-red-400 bg-red-400/10",
+  };
+
+  var categoryIcons = {
+    "Getting Started": IconBook,
+    "Characters": IconUsers,
+    "Analytics": IconChart,
+    "Monetization": IconStar,
+    "Moderation": IconShield,
+    "Voice": IconMic,
+    "API": IconSettings,
+    "Community": IconGlobe,
+  };
+
+  return React.createElement("div", { className: "space-y-6" },
+
+    React.createElement(SectionTitle, { subtitle: "Get help from our dedicated support team" }, "Priority Support"),
+
+    // Header with SLA Display
+    React.createElement(Card, { className: "p-6 animate-fade-in-up" },
+      React.createElement("div", { className: "flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4" },
+        React.createElement("div", { className: "flex items-center gap-3" },
+          React.createElement(IconHeadphones, { size: 28, className: "text-purple-400" }),
+          React.createElement("div", null,
+            React.createElement("h3", { className: "text-lg font-bold text-[#f1f0f5]" }, "Elite Priority Support"),
+            React.createElement("p", { className: "text-sm text-[#a09bb0]" }, "Dedicated support channel for Elite tier creators")
+          )
+        ),
+        React.createElement("div", { className: "flex gap-3 flex-wrap" },
+          React.createElement("div", { className: "bg-purple-500/10 border border-purple-500/30 rounded-lg px-4 py-2 text-center" },
+            React.createElement("div", { className: "text-xs text-[#6b6580]" }, "SLA"),
+            React.createElement("div", { className: "text-sm font-bold text-purple-400" }, "4-hour response")
+          ),
+          React.createElement("div", { className: "bg-green-500/10 border border-green-500/30 rounded-lg px-4 py-2 text-center" },
+            React.createElement("div", { className: "text-xs text-[#6b6580]" }, "Avg Response"),
+            React.createElement("div", { className: "text-sm font-bold text-green-400" }, "1.8 hours")
+          )
+        )
+      )
+    ),
+
+    // Two-column: New Ticket Form + Ticket History
+    React.createElement("div", { className: "grid grid-cols-1 lg:grid-cols-2 gap-6" },
+
+      // New Ticket Form
+      React.createElement(Card, { className: "p-6 animate-fade-in-up stagger-1" },
+        React.createElement("h3", { className: "text-lg font-semibold text-[#f1f0f5] mb-4 flex items-center gap-2" },
+          React.createElement(IconPlus, { size: 18, className: "text-purple-400" }),
+          "New Ticket"
+        ),
+        formSubmitted
+          ? React.createElement("div", { className: "flex flex-col items-center justify-center py-12 text-center" },
+              React.createElement("div", { className: "w-16 h-16 rounded-full bg-green-500/20 flex items-center justify-center mb-4" },
+                React.createElement(IconCheck, { size: 32, className: "text-green-400" })
+              ),
+              React.createElement("h4", { className: "text-lg font-bold text-[#f1f0f5] mb-1" }, "Ticket Submitted!"),
+              React.createElement("p", { className: "text-sm text-[#a09bb0]" }, "We'll respond within 4 hours.")
+            )
+          : React.createElement("form", { onSubmit: handleSubmit, className: "space-y-4" },
+              React.createElement("div", null,
+                React.createElement("label", { className: "block text-sm text-[#a09bb0] mb-1" }, "Subject"),
+                React.createElement("input", {
+                  type: "text",
+                  value: ticketForm.subject,
+                  onChange: function(e) { handleFormChange("subject", e.target.value); },
+                  required: true,
+                  placeholder: "Brief description of your issue",
+                  className: "w-full bg-[#0f0d1a] border border-[#2d2640] rounded-lg px-4 py-2.5 text-[#f1f0f5] text-sm placeholder-[#6b6580] focus:border-purple-500 focus:outline-none focus:ring-1 focus:ring-purple-500/30 transition-colors"
+                })
+              ),
+              React.createElement("div", { className: "grid grid-cols-2 gap-4" },
+                React.createElement("div", null,
+                  React.createElement("label", { className: "block text-sm text-[#a09bb0] mb-1" }, "Category"),
+                  React.createElement("select", {
+                    value: ticketForm.category,
+                    onChange: function(e) { handleFormChange("category", e.target.value); },
+                    className: "w-full bg-[#0f0d1a] border border-[#2d2640] rounded-lg px-4 py-2.5 text-[#f1f0f5] text-sm focus:border-purple-500 focus:outline-none focus:ring-1 focus:ring-purple-500/30 transition-colors"
+                  },
+                    ["Bug Report", "Feature Request", "Account Issue", "Character Issue", "Other"].map(function(cat) {
+                      return React.createElement("option", { key: cat, value: cat }, cat);
+                    })
+                  )
+                ),
+                React.createElement("div", null,
+                  React.createElement("label", { className: "block text-sm text-[#a09bb0] mb-1" }, "Priority"),
+                  React.createElement("select", {
+                    value: ticketForm.priority,
+                    onChange: function(e) { handleFormChange("priority", e.target.value); },
+                    className: "w-full bg-[#0f0d1a] border border-[#2d2640] rounded-lg px-4 py-2.5 text-[#f1f0f5] text-sm focus:border-purple-500 focus:outline-none focus:ring-1 focus:ring-purple-500/30 transition-colors"
+                  },
+                    ["Low", "Medium", "High"].map(function(p) {
+                      return React.createElement("option", { key: p, value: p }, p);
+                    })
+                  )
+                )
+              ),
+              React.createElement("div", null,
+                React.createElement("label", { className: "block text-sm text-[#a09bb0] mb-1" }, "Description"),
+                React.createElement("textarea", {
+                  value: ticketForm.description,
+                  onChange: function(e) { handleFormChange("description", e.target.value); },
+                  required: true,
+                  rows: 4,
+                  placeholder: "Describe your issue in detail...",
+                  className: "w-full bg-[#0f0d1a] border border-[#2d2640] rounded-lg px-4 py-2.5 text-[#f1f0f5] text-sm placeholder-[#6b6580] focus:border-purple-500 focus:outline-none focus:ring-1 focus:ring-purple-500/30 transition-colors resize-none"
+                })
+              ),
+              React.createElement("button", {
+                type: "submit",
+                className: "w-full bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-500 hover:to-indigo-500 text-white font-medium py-2.5 rounded-lg transition-all duration-300 flex items-center justify-center gap-2"
+              },
+                React.createElement(IconSend, { size: 16 }),
+                "Submit Ticket"
+              )
+            )
+      ),
+
+      // Ticket History
+      React.createElement(Card, { className: "p-6 animate-fade-in-up stagger-2" },
+        React.createElement("h3", { className: "text-lg font-semibold text-[#f1f0f5] mb-4 flex items-center gap-2" },
+          React.createElement(IconClock, { size: 18, className: "text-purple-400" }),
+          "Ticket History"
+        ),
+        React.createElement("div", { className: "space-y-3" },
+          supportTickets.map(function(ticket) {
+            return React.createElement("div", {
+              key: ticket.id,
+              className: "bg-[#0f0d1a] rounded-lg p-4 hover:bg-[#1a1625] transition-colors cursor-pointer"
+            },
+              React.createElement("div", { className: "flex items-start justify-between gap-2 mb-2" },
+                React.createElement("div", null,
+                  React.createElement("span", { className: "text-xs text-[#6b6580] mr-2" }, ticket.id),
+                  React.createElement("span", { className: "text-sm font-medium text-[#f1f0f5]" }, ticket.subject)
+                ),
+                React.createElement(StatusBadge, { status: ticket.status })
+              ),
+              React.createElement("div", { className: "flex items-center gap-3 text-xs" },
+                React.createElement("span", { className: "text-[#6b6580]" }, ticket.date),
+                React.createElement("span", {
+                  className: "px-2 py-0.5 rounded-full text-xs font-medium " + (priorityColors[ticket.priority] || "text-[#a09bb0] bg-[#1a1625]")
+                }, ticket.priority)
+              )
+            );
+          })
+        )
+      )
+    ),
+
+    // Knowledge Base
+    React.createElement(Card, { className: "p-6 animate-fade-in-up stagger-3" },
+      React.createElement("div", { className: "flex items-center justify-between mb-4 flex-wrap gap-3" },
+        React.createElement("h3", { className: "text-lg font-semibold text-[#f1f0f5] flex items-center gap-2" },
+          React.createElement(IconBook, { size: 18, className: "text-purple-400" }),
+          "Knowledge Base"
+        ),
+        React.createElement("div", { className: "relative" },
+          React.createElement(IconSearch, { size: 16, className: "absolute left-3 top-1/2 -translate-y-1/2 text-[#6b6580]" }),
+          React.createElement("input", {
+            type: "text",
+            value: kbSearch,
+            onChange: function(e) { setKbSearch(e.target.value); },
+            placeholder: "Search articles...",
+            className: "bg-[#0f0d1a] border border-[#2d2640] rounded-lg pl-9 pr-4 py-2 text-sm text-[#f1f0f5] placeholder-[#6b6580] focus:border-purple-500 focus:outline-none focus:ring-1 focus:ring-purple-500/30 transition-colors w-64"
+          })
+        )
+      ),
+      React.createElement("div", { className: "grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4" },
+        filteredKb.map(function(article) {
+          var KbIcon = categoryIcons[article.category] || IconBook;
+          return React.createElement(Card, { key: article.id, hover: true, className: "p-4 cursor-pointer" },
+            React.createElement("div", { className: "flex items-start gap-3" },
+              React.createElement("div", { className: "w-10 h-10 rounded-lg bg-purple-500/10 flex items-center justify-center flex-shrink-0" },
+                React.createElement(KbIcon, { size: 18, className: "text-purple-400" })
+              ),
+              React.createElement("div", { className: "flex-1 min-w-0" },
+                React.createElement("h4", { className: "text-sm font-medium text-[#f1f0f5] mb-1 truncate" }, article.title),
+                React.createElement(Badge, { variant: "secondary" }, article.category),
+                React.createElement("div", { className: "mt-2" },
+                  React.createElement("span", { className: "text-xs text-purple-400 hover:text-purple-300 font-medium flex items-center gap-1" },
+                    "View Article",
+                    React.createElement(IconExternal, { size: 12 })
+                  )
+                )
+              )
+            )
+          );
+        })
+      )
+    )
+  );
+}
+
+// ============================================================
+// PART 3: DiscordPage, RecommendationsPage, CharacterManagementPage,
+//         NotificationsPage, Sidebar, Header, App, ReactDOM Render
+// ============================================================
+
+// -----------------------------------------------------------
+// 1. DiscordPage
+// -----------------------------------------------------------
+const DiscordPage = () => {
+  return (
+    <div className="space-y-8">
+      {/* Hero Section */}
+      <div className="relative overflow-hidden rounded-2xl" style={{
+        background: 'linear-gradient(135deg, #5b21b6 0%, #6366f1 40%, #7c3aed 70%, #4f46e5 100%)'
+      }}>
+        <div className="absolute inset-0 opacity-10" style={{
+          backgroundImage: 'radial-gradient(circle at 20% 50%, rgba(255,255,255,0.2) 0%, transparent 50%), radial-gradient(circle at 80% 20%, rgba(255,255,255,0.15) 0%, transparent 40%)'
+        }} />
+        <div className="relative px-8 py-12 text-center">
+          <div className="flex items-center justify-center gap-3 mb-4">
+            <IconDisc size={40} className="text-white" />
+            <h1 className="text-4xl font-bold text-white tracking-tight">Creators Club</h1>
+          </div>
+          <p className="text-indigo-100 text-lg mb-6 max-w-xl mx-auto">
+            Connect with fellow character creators, share tips, get feedback, and stay ahead of the curve.
+          </p>
+          <div className="flex items-center justify-center gap-6 mb-8 text-sm">
+            <span className="flex items-center gap-2 text-white/90">
+              <IconUsers size={16} /> <strong>2,847</strong> members
+            </span>
+            <span className="flex items-center gap-2 text-white/90">
+              <span className="w-2.5 h-2.5 rounded-full bg-green-400 shadow-lg shadow-green-400/50 inline-block" />
+              <strong>342</strong> online
+            </span>
+          </div>
+          <div className="flex flex-col items-center gap-3">
+            <button className="inline-flex items-center gap-2 px-8 py-3 rounded-xl font-semibold text-white shadow-lg transition-all hover:scale-105"
+              style={{ background: 'linear-gradient(135deg, #7c3aed 0%, #6366f1 100%)', boxShadow: '0 4px 24px rgba(124,58,237,0.4)' }}>
+              <IconExternal size={18} /> Join Discord
+            </button>
+            <a href="#" className="text-indigo-200 hover:text-white text-sm transition-colors flex items-center gap-1">
+              Already a member? Open Discord <IconExternal size={14} />
+            </a>
+          </div>
+        </div>
+      </div>
+
+      {/* Upcoming Events */}
+      <div>
+        <SectionTitle subtitle="Don't miss out on community happenings">Upcoming Events</SectionTitle>
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mt-4">
+          {discordInfo.events.map((event, idx) => {
+            const typeColors = {
+              meetup: { bg: 'rgba(139,92,246,0.15)', text: '#a78bfa', border: '#8b5cf6' },
+              workshop: { bg: 'rgba(99,102,241,0.15)', text: '#818cf8', border: '#6366f1' },
+              ama: { bg: 'rgba(59,130,246,0.15)', text: '#60a5fa', border: '#3b82f6' }
+            };
+            const tc = typeColors[event.type] || typeColors.meetup;
+            return (
+              <Card key={idx} hover>
+                <div className="space-y-3">
+                  <div className="flex items-center justify-between">
+                    <span className="px-3 py-1 rounded-full text-xs font-semibold uppercase tracking-wider"
+                      style={{ background: tc.bg, color: tc.text, border: `1px solid ${tc.border}33` }}>
+                      {event.type}
+                    </span>
+                    <span className="text-xs text-[#6b6580] flex items-center gap-1">
+                      <IconCalendar size={12} /> {event.date}
+                    </span>
+                  </div>
+                  <h3 className="text-[#f1f0f5] font-semibold text-base">{event.title}</h3>
+                  <div className="flex items-center justify-between">
+                    <span className="text-sm text-[#a09bb0] flex items-center gap-1">
+                      <IconClock size={14} /> {event.time}
+                    </span>
+                    <span className="text-sm text-[#a09bb0] flex items-center gap-1">
+                      <IconUsers size={14} /> {event.attendees} going
+                    </span>
+                  </div>
+                  <button className="w-full mt-1 py-2 rounded-lg text-sm font-medium text-[#a78bfa] border border-[#8b5cf6]/30 hover:bg-[#8b5cf6]/10 transition-colors">
+                    RSVP
+                  </button>
+                </div>
+              </Card>
+            );
+          })}
+        </div>
+      </div>
+
+      {/* Community Highlights */}
+      <div>
+        <SectionTitle subtitle="Recent messages from the community">Community Highlights</SectionTitle>
+        <div className="space-y-2 mt-4">
+          {discordInfo.highlights.map((h, idx) => (
+            <div key={idx} className="flex items-start gap-3 p-4 rounded-xl bg-[#0f0d1a] border border-[#2d2640]/50 hover:border-[#2d2640] transition-colors">
+              <Avatar initials={h.user.slice(0, 2)} size="sm" />
+              <div className="flex-1 min-w-0">
+                <span className="font-semibold text-sm text-[#a78bfa]">{h.user}</span>
+                <p className="text-[#f1f0f5] text-sm mt-0.5 leading-relaxed">{h.message}</p>
+              </div>
+              <span className="flex items-center gap-1 text-xs text-[#6b6580] shrink-0 mt-1">
+                <IconHeart size={13} className="text-[#f87171]" /> {h.likes}
+              </span>
+            </div>
+          ))}
+        </div>
+      </div>
+
+      {/* Quick Links */}
+      <div>
+        <SectionTitle subtitle="Useful community resources">Quick Links</SectionTitle>
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mt-4">
+          {[
+            { icon: IconBook, title: 'Rules & Guidelines', desc: 'Community standards and expectations for all members.' },
+            { icon: IconUsers, title: 'Introductions Channel', desc: 'Say hello and meet other character creators.' },
+            { icon: IconMessage, title: 'Feedback Forum', desc: 'Share ideas and vote on community suggestions.' },
+            { icon: IconZap, title: 'Creator Resources', desc: 'Guides, templates, and tools to level up your craft.' }
+          ].map((link, idx) => (
+            <Card key={idx} hover>
+              <div className="flex flex-col items-center text-center gap-3 py-2">
+                <div className="w-12 h-12 rounded-xl flex items-center justify-center" style={{ background: 'rgba(139,92,246,0.12)' }}>
+                  <link.icon size={22} className="text-[#a78bfa]" />
+                </div>
+                <h4 className="text-[#f1f0f5] font-semibold text-sm">{link.title}</h4>
+                <p className="text-[#6b6580] text-xs leading-relaxed">{link.desc}</p>
+              </div>
+            </Card>
+          ))}
+        </div>
+      </div>
+    </div>
+  );
+};
+
+// -----------------------------------------------------------
+// 2. RecommendationsPage
+// -----------------------------------------------------------
+const RecommendationsPage = () => {
+  return (
+    <div className="space-y-8">
+      {/* Personalized Tips Header */}
+      <div className="flex items-center gap-3 mb-2">
+        <div className="w-10 h-10 rounded-xl flex items-center justify-center" style={{ background: 'linear-gradient(135deg, #8b5cf6, #6366f1)' }}>
+          <IconSparkles size={20} className="text-white" />
+        </div>
+        <div>
+          <h2 className="text-xl font-bold text-[#f1f0f5]">Personalized Recommendations</h2>
+          <p className="text-sm text-[#a09bb0]">Based on your analytics and current trends</p>
+        </div>
+      </div>
+
+      {/* AI Insights Quick Bar */}
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+        {aiInsights.slice(0, 3).map((insight, idx) => (
+          <Card key={idx}>
+            <div className="flex items-start gap-3">
+              <div className="w-8 h-8 rounded-lg flex items-center justify-center shrink-0" style={{ background: 'rgba(139,92,246,0.12)' }}>
+                <IconBulb size={16} className="text-[#fbbf24]" />
+              </div>
+              <p className="text-sm text-[#f1f0f5] leading-relaxed">{insight}</p>
+            </div>
+          </Card>
+        ))}
+      </div>
+
+      {/* Trending Topics */}
+      <div>
+        <SectionTitle subtitle="High-demand themes your audience would love">Trending Topics to Create Characters Around</SectionTitle>
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 mt-4">
+          {recommendedTopics.map((topic, idx) => {
+            const isHighMatch = topic.match >= 85;
+            return (
+              <Card key={idx} hover>
+                <div className="space-y-3">
+                  <div className="flex items-center justify-between">
+                    <h3 className="text-[#f1f0f5] font-semibold">{topic.title}</h3>
+                    <span className={`px-2.5 py-1 rounded-full text-xs font-bold ${
+                      isHighMatch ? 'text-[#34d399]' : 'text-[#a78bfa]'
+                    }`} style={{
+                      background: isHighMatch ? 'rgba(52,211,153,0.12)' : 'rgba(167,139,250,0.12)',
+                      border: `1px solid ${isHighMatch ? 'rgba(52,211,153,0.2)' : 'rgba(167,139,250,0.2)'}`
+                    }}>
+                      {topic.match}% Match
+                    </span>
+                  </div>
+                  {isHighMatch && (
+                    <div className="h-1 rounded-full overflow-hidden" style={{ background: 'rgba(139,92,246,0.15)' }}>
+                      <div className="h-full rounded-full" style={{
+                        width: `${topic.match}%`,
+                        background: 'linear-gradient(90deg, #8b5cf6, #6366f1)'
+                      }} />
+                    </div>
+                  )}
+                  <p className="text-sm text-[#a09bb0] leading-relaxed">{topic.description}</p>
+                  <button className="w-full py-2 rounded-lg text-sm font-medium text-[#a78bfa] border border-[#8b5cf6]/30 hover:bg-[#8b5cf6]/10 transition-colors flex items-center justify-center gap-2">
+                    <IconPlus size={14} /> Create Character
+                  </button>
+                </div>
+              </Card>
+            );
+          })}
+        </div>
+      </div>
+
+      {/* Creator Spotlights */}
+      <div>
+        <SectionTitle subtitle="Learn from creators who have been there">Creator Spotlights</SectionTitle>
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mt-4">
+          {[
+            { name: 'NightWeaver', initials: 'NW', quote: 'How I grew to 200K messages in 3 months', strategy: 'Consistent scene updates', metric: '200K', metricLabel: 'messages', color: '#8b5cf6' },
+            { name: 'StoryCraft', initials: 'SC', quote: 'Why voice integration doubled my retention', strategy: 'Custom voices for each character', metric: '2x', metricLabel: 'retention', color: '#6366f1' },
+            { name: 'DreamMaker', initials: 'DM', quote: 'Building a character universe', strategy: 'Interconnected character storylines', metric: '45K', metricLabel: 'users', color: '#a78bfa' }
+          ].map((spotlight, idx) => (
+            <Card key={idx} hover>
+              <div className="space-y-4">
+                <div className="flex items-center gap-3">
+                  <Avatar initials={spotlight.initials} size="md" className={`ring-2`} />
+                  <div>
+                    <h4 className="text-[#f1f0f5] font-semibold">{spotlight.name}</h4>
+                    <p className="text-xs text-[#6b6580]">Top Creator</p>
+                  </div>
+                </div>
+                <p className="text-sm text-[#f1f0f5] font-medium italic">"{spotlight.quote}"</p>
+                <div className="flex items-center gap-2 text-xs text-[#a09bb0]">
+                  <IconTarget size={13} className="text-[#a78bfa]" />
+                  <span>Strategy: {spotlight.strategy}</span>
+                </div>
+                <div className="flex items-center gap-2 px-3 py-2 rounded-lg" style={{ background: 'rgba(139,92,246,0.08)' }}>
+                  <span className="text-2xl font-bold" style={{ color: spotlight.color }}>{spotlight.metric}</span>
+                  <span className="text-xs text-[#a09bb0]">{spotlight.metricLabel}</span>
+                </div>
+              </div>
+            </Card>
+          ))}
+        </div>
+      </div>
+
+      {/* Best Practices Grid */}
+      <div>
+        <SectionTitle subtitle="Proven techniques for character creation success">Best Practices</SectionTitle>
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mt-4">
+          {bestPractices.map((practice, idx) => {
+            const iconMap = { edit: IconEdit, refresh: IconRefresh, users: IconUsers, star: IconStar };
+            const IconComp = iconMap[practice.icon] || IconStar;
+            return (
+              <Card key={idx} hover>
+                <div className="flex items-start gap-4">
+                  <div className="w-10 h-10 rounded-xl flex items-center justify-center shrink-0" style={{ background: 'rgba(139,92,246,0.12)' }}>
+                    <IconComp size={18} className="text-[#a78bfa]" />
+                  </div>
+                  <div>
+                    <h4 className="text-[#f1f0f5] font-semibold text-sm mb-1">{practice.title}</h4>
+                    <p className="text-[#a09bb0] text-sm leading-relaxed">{practice.description}</p>
+                  </div>
+                </div>
+              </Card>
+            );
+          })}
+        </div>
+      </div>
+    </div>
+  );
+};
+
+// -----------------------------------------------------------
+// 3. CharacterManagementPage
+// -----------------------------------------------------------
+const CharacterManagementPage = () => {
+  const [statusFilter, setStatusFilter] = useState('all');
+  const [sortBy, setSortBy] = useState('messages');
+  const [searchQuery, setSearchQuery] = useState('');
+
+  const statusFilters = ['all', 'thriving', 'growing', 'stable', 'declining', 'new'];
+  const sortOptions = [
+    { key: 'messages', label: 'Messages' },
+    { key: 'users', label: 'Users' },
+    { key: 'likes', label: 'Likes' },
+    { key: 'recent', label: 'Recent' }
+  ];
+
+  const filteredCharacters = useMemo(() => {
+    let result = [...characters];
+    if (statusFilter !== 'all') {
+      result = result.filter(c => c.status === statusFilter);
+    }
+    if (searchQuery.trim()) {
+      const q = searchQuery.toLowerCase();
+      result = result.filter(c => c.name.toLowerCase().includes(q) || c.genre.toLowerCase().includes(q));
+    }
+    result.sort((a, b) => {
+      switch (sortBy) {
+        case 'messages': return b.messages - a.messages;
+        case 'users': return b.users - a.users;
+        case 'likes': return b.likes - a.likes;
+        case 'recent': return new Date(b.created) - new Date(a.created);
+        default: return 0;
+      }
+    });
+    return result;
+  }, [statusFilter, sortBy, searchQuery]);
+
+  const totals = useMemo(() => ({
+    messages: characters.reduce((s, c) => s + c.messages, 0),
+    users: characters.reduce((s, c) => s + c.users, 0),
+    likes: characters.reduce((s, c) => s + c.likes, 0),
+    avgSession: (characters.reduce((s, c) => s + (c.avgSession || 12), 0) / characters.length).toFixed(1)
+  }), []);
+
+  return (
+    <div className="space-y-6">
+      {/* Summary Stats Bar */}
+      <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
+        <StatCard title="Total Messages" value={formatNumber(totals.messages)} icon={<IconMessage size={18} className="text-[#8b5cf6]" />} change="+12.4%" />
+        <StatCard title="Total Users" value={formatNumber(totals.users)} icon={<IconUsers size={18} className="text-[#6366f1]" />} change="+8.2%" />
+        <StatCard title="Total Likes" value={formatNumber(totals.likes)} icon={<IconHeart size={18} className="text-[#f87171]" />} change="+15.1%" />
+        <StatCard title="Avg Session" value={`${totals.avgSession}m`} icon={<IconClock size={18} className="text-[#34d399]" />} change="+3.7%" />
+      </div>
+
+      {/* Header with Actions */}
+      <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
+        <div className="flex items-center gap-3">
+          <h2 className="text-xl font-bold text-[#f1f0f5]">Your Characters</h2>
+          <span className="px-2.5 py-0.5 rounded-full text-xs font-semibold bg-[#8b5cf6]/15 text-[#a78bfa] border border-[#8b5cf6]/20">{characters.length}</span>
+        </div>
+        <div className="flex items-center gap-3">
+          <div className="relative">
+            <IconSearch size={16} className="absolute left-3 top-1/2 -translate-y-1/2 text-[#6b6580]" />
+            <input
+              type="text"
+              placeholder="Search characters..."
+              value={searchQuery}
+              onChange={e => setSearchQuery(e.target.value)}
+              className="pl-9 pr-4 py-2 rounded-lg bg-[#1a1625] border border-[#2d2640] text-sm text-[#f1f0f5] placeholder-[#6b6580] outline-none focus:border-[#8b5cf6]/50 transition-colors w-48"
+            />
+          </div>
+          <button className="inline-flex items-center gap-2 px-4 py-2 rounded-lg font-medium text-sm text-white transition-all hover:scale-105"
+            style={{ background: 'linear-gradient(135deg, #8b5cf6, #6366f1)' }}>
+            <IconPlus size={16} /> Create New
+          </button>
+        </div>
+      </div>
+
+      {/* Filter & Sort Row */}
+      <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-3">
+        <div className="flex flex-wrap items-center gap-2">
+          {statusFilters.map(f => (
+            <button key={f} onClick={() => setStatusFilter(f)}
+              className={`px-3 py-1.5 rounded-lg text-xs font-medium capitalize transition-all ${
+                statusFilter === f
+                  ? 'bg-[#8b5cf6]/15 text-[#a78bfa] border border-[#8b5cf6]/30'
+                  : 'text-[#6b6580] hover:text-[#a09bb0] border border-transparent hover:border-[#2d2640]'
+              }`}>
+              {f === 'all' ? 'All' : f}
+            </button>
+          ))}
+        </div>
+        <div className="flex items-center gap-2 text-xs text-[#6b6580]">
+          <span>Sort by:</span>
+          {sortOptions.map(s => (
+            <button key={s.key} onClick={() => setSortBy(s.key)}
+              className={`px-2.5 py-1 rounded-md transition-all ${
+                sortBy === s.key ? 'bg-[#1a1625] text-[#a78bfa]' : 'hover:text-[#a09bb0]'
+              }`}>
+              {s.label}
+            </button>
+          ))}
+        </div>
+      </div>
+
+      {/* Character Cards Grid */}
+      {filteredCharacters.length === 0 ? (
+        <Card>
+          <div className="py-12 text-center">
+            <IconSearch size={32} className="text-[#2d2640] mx-auto mb-3" />
+            <p className="text-[#6b6580]">No characters match your filters</p>
+          </div>
+        </Card>
+      ) : (
+        <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4">
+          {filteredCharacters.map((char, idx) => {
+            const gradients = [
+              'linear-gradient(135deg, #8b5cf6, #6366f1)',
+              'linear-gradient(135deg, #6366f1, #3b82f6)',
+              'linear-gradient(135deg, #a78bfa, #8b5cf6)',
+              'linear-gradient(135deg, #7c3aed, #4f46e5)',
+              'linear-gradient(135deg, #6d28d9, #6366f1)'
+            ];
+            const isPositive = char.trend > 0;
+            return (
+              <Card key={char.id || idx} hover>
+                <div className="space-y-3">
+                  <div className="flex items-start justify-between">
+                    <div className="flex items-center gap-3">
+                      <div className="w-11 h-11 rounded-xl flex items-center justify-center text-white font-bold text-sm shrink-0"
+                        style={{ background: gradients[idx % gradients.length] }}>
+                        {char.name.slice(0, 2).toUpperCase()}
+                      </div>
+                      <div>
+                        <h3 className="text-[#f1f0f5] font-semibold">{char.name}</h3>
+                        <Badge variant="purple">{char.genre}</Badge>
+                      </div>
+                    </div>
+                    <StatusBadge status={char.status} />
+                  </div>
+
+                  {char.tagline && (
+                    <p className="text-xs text-[#a09bb0] line-clamp-2 leading-relaxed">{char.tagline}</p>
+                  )}
+
+                  <div className="flex items-center gap-4 text-xs text-[#a09bb0]">
+                    <span className="flex items-center gap-1"><IconMessage size={13} className="text-[#8b5cf6]" /> {formatNumber(char.messages)}</span>
+                    <span className="flex items-center gap-1"><IconUsers size={13} className="text-[#6366f1]" /> {formatNumber(char.users)}</span>
+                    <span className="flex items-center gap-1"><IconHeart size={13} className="text-[#f87171]" /> {formatNumber(char.likes)}</span>
+                  </div>
+
+                  <div className="flex items-center justify-between">
+                    <span className={`flex items-center gap-1 text-xs font-medium ${isPositive ? 'text-[#34d399]' : 'text-[#f87171]'}`}>
+                      {isPositive ? <IconArrowUp size={13} /> : <IconArrowDown size={13} />}
+                      {isPositive ? '+' : ''}{char.trend}%
+                    </span>
+                    {char.created && (
+                      <span className="text-[10px] text-[#6b6580] flex items-center gap-1">
+                        <IconCalendar size={10} /> {char.created}
+                      </span>
+                    )}
+                  </div>
+
+                  <div className="flex items-center gap-2 pt-1">
+                    <button className="flex-1 py-1.5 rounded-lg text-xs font-medium text-[#a78bfa] border border-[#8b5cf6]/25 hover:bg-[#8b5cf6]/10 transition-colors">
+                      View Details
+                    </button>
+                    <button className="flex-1 py-1.5 rounded-lg text-xs font-medium text-[#a09bb0] border border-[#2d2640] hover:bg-white/5 transition-colors flex items-center justify-center gap-1">
+                      <IconEdit size={12} /> Edit
+                    </button>
+                  </div>
+                </div>
+              </Card>
+            );
+          })}
+        </div>
+      )}
+    </div>
+  );
+};
+
+// -----------------------------------------------------------
+// 4. NotificationsPage
+// -----------------------------------------------------------
+const NotificationsPage = () => {
+  const [activeTab, setActiveTab] = useState('all');
+  const [localNotifications, setLocalNotifications] = useState(notifications);
+
+  const tabs = ['all', 'milestone', 'rank', 'announcement', 'system'];
+  const tabLabels = { all: 'All', milestone: 'Milestones', rank: 'Rankings', announcement: 'Announcements', system: 'System' };
+
+  const filtered = useMemo(() => {
+    if (activeTab === 'all') return localNotifications;
+    return localNotifications.filter(n => n.type === activeTab);
+  }, [activeTab, localNotifications]);
+
+  const unreadCount = localNotifications.filter(n => !n.read).length;
+
+  const markAllRead = () => {
+    setLocalNotifications(prev => prev.map(n => ({ ...n, read: true })));
+  };
+
+  const typeConfig = {
+    milestone: { color: '#fbbf24', bg: 'rgba(251,191,36,0.12)', Icon: IconTrophy },
+    rank: { color: '#a78bfa', bg: 'rgba(167,139,250,0.12)', Icon: IconAward },
+    announcement: { color: '#818cf8', bg: 'rgba(129,140,248,0.12)', Icon: IconSparkles },
+    growth: { color: '#34d399', bg: 'rgba(52,211,153,0.12)', Icon: IconTrendingUp },
+    system: { color: '#60a5fa', bg: 'rgba(96,165,250,0.12)', Icon: IconShield }
+  };
+
+  return (
+    <div className="space-y-6">
+      {/* Header */}
+      <div className="flex items-center justify-between">
+        <div className="flex items-center gap-3">
+          <h2 className="text-xl font-bold text-[#f1f0f5]">Notifications</h2>
+          {unreadCount > 0 && (
+            <span className="px-2.5 py-0.5 rounded-full text-xs font-bold bg-[#8b5cf6] text-white">
+              {unreadCount} unread
+            </span>
+          )}
+        </div>
+        {unreadCount > 0 && (
+          <button onClick={markAllRead} className="text-sm text-[#a78bfa] hover:text-[#8b5cf6] transition-colors flex items-center gap-1">
+            <IconCheck size={14} /> Mark All Read
+          </button>
+        )}
+      </div>
+
+      {/* Filter Tabs */}
+      <TabGroup
+        tabs={tabs.map(t => tabLabels[t])}
+        active={tabs.indexOf(activeTab)}
+        onChange={idx => setActiveTab(tabs[idx])}
+      />
+
+      {/* Notification Feed */}
+      {filtered.length === 0 ? (
+        <Card>
+          <div className="py-16 text-center">
+            <IconBell size={36} className="text-[#2d2640] mx-auto mb-3" />
+            <p className="text-[#6b6580]">No notifications in this category</p>
+          </div>
+        </Card>
+      ) : (
+        <div className="space-y-2">
+          {filtered.map((n, idx) => {
+            const config = typeConfig[n.type] || typeConfig.system;
+            const IconComp = config.Icon;
+            return (
+              <div key={n.id || idx}
+                className={`flex items-start gap-4 p-4 rounded-xl border transition-all cursor-pointer hover:border-[#2d2640] ${
+                  !n.read ? 'bg-[#1e1a2e] border-l-2' : 'bg-[#0f0d1a] border-transparent'
+                }`}
+                style={!n.read ? { borderLeftColor: config.color } : { borderLeftWidth: '2px', borderLeftColor: 'transparent' }}>
+                <div className="w-9 h-9 rounded-xl flex items-center justify-center shrink-0"
+                  style={{ background: config.bg }}>
+                  <IconComp size={16} style={{ color: config.color }} />
+                </div>
+                <div className="flex-1 min-w-0">
+                  <p className={`text-sm leading-relaxed ${!n.read ? 'text-[#f1f0f5] font-medium' : 'text-[#a09bb0]'}`}>
+                    {n.message}
+                  </p>
+                  <span className="text-xs text-[#6b6580] mt-1 inline-block">{n.time}</span>
+                </div>
+                {!n.read && (
+                  <div className="w-2.5 h-2.5 rounded-full bg-[#6366f1] shrink-0 mt-1.5 shadow-lg shadow-[#6366f1]/30" />
+                )}
+              </div>
+            );
+          })}
+        </div>
+      )}
+    </div>
+  );
+};
+
+// -----------------------------------------------------------
+// 5. Sidebar
+// -----------------------------------------------------------
+const Sidebar = ({ collapsed, setCollapsed, activePage, setActivePage }) => {
+  const navItems = [
+    { key: 'home', label: 'Dashboard', icon: IconHome },
+    { key: 'analytics', label: 'Analytics', icon: IconChart },
+    { key: 'leaderboard', label: 'Leaderboard', icon: IconTrophy },
+    { key: 'tier', label: 'MVP Status', icon: IconShield },
+    { key: 'characters', label: 'Characters', icon: IconGamepad },
+    { key: 'support', label: 'Support', icon: IconHeadphones },
+    { key: 'discord', label: 'Community', icon: IconDisc },
+    { key: 'recommendations', label: 'Tips & Recs', icon: IconBulb },
+    { key: 'notifications', label: 'Notifications', icon: IconBell },
+  ];
+
+  const unreadCount = notifications.filter(n => !n.read).length;
+
+  return (
+    <aside className="fixed left-0 top-0 h-full flex flex-col border-r border-[#2d2640] z-50 transition-all duration-300"
+      style={{ width: collapsed ? 72 : 260, background: '#0f0d1a' }}>
+
+      {/* Creator Profile */}
+      <div className={`flex items-center gap-3 px-4 py-5 border-b border-[#2d2640]/60 ${collapsed ? 'justify-center' : ''}`}>
+        <div className="w-9 h-9 rounded-xl flex items-center justify-center text-white font-bold text-xs shrink-0"
+          style={{ background: 'linear-gradient(135deg, #8b5cf6, #6366f1)' }}>
+          AF
+        </div>
+        {!collapsed && (
+          <div className="overflow-hidden transition-all duration-300">
+            <div className="text-sm font-semibold text-[#f1f0f5] whitespace-nowrap">AetherForge</div>
+            <span className="inline-flex items-center gap-1 text-[10px] font-semibold px-1.5 py-0.5 rounded bg-[#fbbf24]/15 text-[#fbbf24]">
+              <IconCrown size={10} /> Elite
+            </span>
+          </div>
+        )}
+      </div>
+
+      {/* Navigation */}
+      <nav className="flex-1 overflow-y-auto py-3 px-2 space-y-0.5">
+        {navItems.map(item => {
+          const isActive = activePage === item.key;
+          const Icon = item.icon;
+          return (
+            <button key={item.key}
+              onClick={() => setActivePage(item.key)}
+              className={`w-full flex items-center gap-3 rounded-xl transition-all duration-200 relative group ${
+                collapsed ? 'justify-center px-2 py-2.5' : 'px-3 py-2.5'
+              } ${
+                isActive
+                  ? 'bg-[#8b5cf6]/10 text-[#a78bfa]'
+                  : 'text-[#6b6580] hover:bg-white/5 hover:text-[#f1f0f5]'
+              }`}
+              title={collapsed ? item.label : undefined}
+            >
+              {/* Active indicator */}
+              {isActive && (
+                <div className="absolute left-0 top-1/2 -translate-y-1/2 w-[3px] h-5 rounded-r-full bg-[#8b5cf6]" />
+              )}
+              <div className="relative shrink-0">
+                <Icon size={19} />
+                {item.key === 'notifications' && unreadCount > 0 && (
+                  <span className="absolute -top-1 -right-1 w-2 h-2 rounded-full bg-[#f87171] ring-2 ring-[#0f0d1a]" />
+                )}
+              </div>
+              {!collapsed && (
+                <span className="text-sm font-medium whitespace-nowrap">{item.label}</span>
+              )}
+              {/* Tooltip on collapsed */}
+              {collapsed && (
+                <div className="absolute left-full ml-2 px-2.5 py-1 rounded-md bg-[#231e30] text-[#f1f0f5] text-xs font-medium whitespace-nowrap opacity-0 pointer-events-none group-hover:opacity-100 transition-opacity shadow-lg z-50 border border-[#2d2640]">
+                  {item.label}
+                </div>
+              )}
+            </button>
+          );
+        })}
+      </nav>
+
+      {/* Create Character CTA */}
+      <div className="px-3 pb-2">
+        {collapsed ? (
+          <button className="w-10 h-10 mx-auto rounded-xl flex items-center justify-center text-white transition-transform hover:scale-110"
+            style={{ background: 'linear-gradient(135deg, #8b5cf6, #6366f1)' }}
+            title="Create Character">
+            <IconPlus size={18} />
+          </button>
+        ) : (
+          <button className="w-full flex items-center justify-center gap-2 px-4 py-2.5 rounded-xl text-sm font-semibold text-white transition-all hover:scale-[1.02] hover:shadow-lg"
+            style={{ background: 'linear-gradient(135deg, #8b5cf6, #6366f1)', boxShadow: '0 2px 12px rgba(139,92,246,0.25)' }}>
+            <IconPlus size={16} /> Create Character
+          </button>
+        )}
+      </div>
+
+      {/* Collapse Toggle */}
+      <button onClick={() => setCollapsed(!collapsed)}
+        className="flex items-center justify-center py-3 border-t border-[#2d2640]/60 text-[#6b6580] hover:text-[#a09bb0] transition-colors">
+        {collapsed ? <IconChevronRight size={18} /> : <IconChevronLeft size={18} />}
+      </button>
+    </aside>
+  );
+};
+
+// -----------------------------------------------------------
+// 6. Header
+// -----------------------------------------------------------
+const Header = ({ activePage, setActivePage }) => {
+  const pageTitles = {
+    home: 'Dashboard',
+    analytics: 'Analytics & Insights',
+    leaderboard: 'Leaderboard',
+    tier: 'MVP Status',
+    characters: 'Characters',
+    support: 'Priority Support',
+    discord: 'Creators Club',
+    recommendations: 'Tips & Recommendations',
+    notifications: 'Notifications'
+  };
+
+  const unreadCount = notifications.filter(n => !n.read).length;
+
+  return (
+    <header className="sticky top-0 z-40 flex items-center justify-between px-6 border-b border-[#2d2640]"
+      style={{ height: 64, background: 'rgba(8,6,18,0.85)', backdropFilter: 'blur(12px)', WebkitBackdropFilter: 'blur(12px)' }}>
+      {/* Left: Page Title */}
+      <h1 className="text-lg font-bold text-[#f1f0f5] tracking-tight">
+        {pageTitles[activePage] || 'Dashboard'}
+      </h1>
+
+      {/* Right: Actions */}
+      <div className="flex items-center gap-3">
+        <div className="relative hidden md:block">
+          <IconSearch size={15} className="absolute left-3 top-1/2 -translate-y-1/2 text-[#6b6580]" />
+          <input
+            type="text"
+            placeholder="Search..."
+            className="pl-9 pr-4 py-1.5 rounded-lg bg-[#1a1625] border border-[#2d2640] text-sm text-[#f1f0f5] placeholder-[#6b6580] outline-none focus:border-[#8b5cf6]/50 transition-colors w-44"
+            readOnly
+          />
+        </div>
+
+        <button onClick={() => setActivePage('notifications')}
+          className="relative p-2 rounded-lg text-[#6b6580] hover:text-[#f1f0f5] hover:bg-white/5 transition-colors">
+          <IconBell size={19} />
+          {unreadCount > 0 && (
+            <span className="absolute top-1 right-1 w-2 h-2 rounded-full bg-[#f87171] ring-2 ring-[#080612]" />
+          )}
+        </button>
+
+        <div className="w-8 h-8 rounded-lg flex items-center justify-center text-white font-bold text-xs cursor-pointer hover:ring-2 hover:ring-[#8b5cf6]/40 transition-all"
+          style={{ background: 'linear-gradient(135deg, #8b5cf6, #6366f1)' }}>
+          AF
+        </div>
+      </div>
+    </header>
+  );
+};
+
+// -----------------------------------------------------------
+// 7. App (Main)
+// -----------------------------------------------------------
+const App = () => {
+  const [activePage, setActivePage] = useState('home');
+  const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
+
+  const renderPage = () => {
+    switch (activePage) {
+      case 'home': return <DashboardHome onNavigate={setActivePage} />;
+      case 'analytics': return <AnalyticsPage />;
+      case 'leaderboard': return <LeaderboardPage />;
+      case 'tier': return <TierStatusPage />;
+      case 'characters': return <CharacterManagementPage />;
+      case 'support': return <SupportPage />;
+      case 'discord': return <DiscordPage />;
+      case 'recommendations': return <RecommendationsPage />;
+      case 'notifications': return <NotificationsPage />;
+      default: return <DashboardHome onNavigate={setActivePage} />;
+    }
+  };
+
+  return (
+    <div className="flex min-h-screen" style={{ background: '#080612' }}>
+      <Sidebar
+        collapsed={sidebarCollapsed}
+        setCollapsed={setSidebarCollapsed}
+        activePage={activePage}
+        setActivePage={setActivePage}
+      />
+
+      {/* Main content area */}
+      <div className="flex-1 flex flex-col min-h-screen transition-all duration-300"
+        style={{ marginLeft: sidebarCollapsed ? 72 : 260 }}>
+        <Header activePage={activePage} setActivePage={setActivePage} />
+
+        <main className="flex-1 overflow-y-auto">
+          <div className="p-6 max-w-7xl mx-auto w-full" key={activePage}
+            style={{ animation: 'fadeInUp 0.4s ease-out both' }}>
+            {renderPage()}
+          </div>
+        </main>
+      </div>
+    </div>
+  );
+};
+
+// -----------------------------------------------------------
+// 8. ReactDOM Render
+// -----------------------------------------------------------
+const root = ReactDOM.createRoot(document.getElementById('root'));
+root.render(<App />);
+
+// Hide loading screen
+const loadingEl = document.getElementById('loading');
+if (loadingEl) loadingEl.style.display = 'none';
+
+  </script>
+</body>
+</html>
