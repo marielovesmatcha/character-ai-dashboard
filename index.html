@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Character.AI — MVP Creators Dashboard</title>
+  <title>Character.AI — rosa's Creator Dashboard</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
   <script src="https://cdn.tailwindcss.com"></script>
@@ -134,60 +134,60 @@ const COLORS = {
 
 // ─── Creator Profile ──────────────────────────────────────
 const creator = {
-  name: "AetherForge",
-  avatar: "AF",
-  tier: "Elite",
-  tierProgress: 78,
-  joinDate: "March 2024",
-  totalInteractions: 547382,
-  followers: 12847,
-  followersGrowth: 342,
-  monthlyMessages: 89432,
-  messagesGrowth: 18.2,
-  uniqueUsers: 23891,
-  usersGrowth: 12.4,
-  topRank: 3,
-  bio: "Crafting worlds where anime meets dark fantasy. 10 characters and counting.",
+  name: "rosa",
+  avatar: "RO",
+  tier: "Legendary",
+  tierProgress: 92,
+  joinDate: "2023",
+  totalInteractions: 1818200000,
+  followers: 452400,
+  followersGrowth: 8240,
+  monthlyMessages: 124600000,
+  messagesGrowth: 14.8,
+  uniqueUsers: 1890000,
+  usersGrowth: 9.6,
+  topRank: 1,
+  bio: "˗ˏ✎ any pronouns / twenty-four / filo ★‧₊˚ ⋆˙⟡ 500+ characters across anime, fantasy & original worlds",
 };
 
 // ─── Characters ───────────────────────────────────────────
 const characters = [
-  { id:1, name:"Kaito Shadowblade", genre:"Dark Anime", tagline:"A wandering swordsman seeking redemption in a fractured world", messages:142300, totalMessages:547400, users:8920, uniqueUsers:8920, likes:4521, sessions:34200, avgSessionMins:12.4, avgSession:12.4, trend:15, rank:3, status:"thriving", created:"Apr 2024", initials:"KS", compositeScore:92, scenes:[{name:"Training Grounds",pct:34},{name:"Night Market",pct:28},{name:"Boss Battle",pct:22},{name:"Tavern Rest",pct:16}] },
-  { id:2, name:"Luna Starweaver", genre:"Fantasy", tagline:"An ancient mage awakened in a world that forgot magic", messages:98700, totalMessages:389200, users:6420, uniqueUsers:6420, likes:3892, sessions:22100, avgSessionMins:11.2, avgSession:11.2, trend:8, rank:7, status:"thriving", created:"Apr 2024", initials:"LS", compositeScore:85, scenes:[{name:"Enchanted Library",pct:38},{name:"Crystal Caverns",pct:26},{name:"Royal Court",pct:20},{name:"Star Observatory",pct:16}] },
-  { id:3, name:"Sakura Mitsuki", genre:"Romance Anime", tagline:"A transfer student hiding extraordinary powers", messages:87200, totalMessages:312800, users:7100, uniqueUsers:7100, likes:5100, sessions:19800, avgSessionMins:10.8, avgSession:10.8, trend:22, rank:5, status:"thriving", created:"May 2024", initials:"SM", compositeScore:88, scenes:[{name:"School Rooftop",pct:32},{name:"Cherry Blossom Park",pct:30},{name:"Festival Night",pct:24},{name:"Classroom",pct:14}] },
-  { id:4, name:"Draven the Eternal", genre:"Dark Fantasy", tagline:"An immortal warlord questioning centuries of conquest", messages:62400, totalMessages:248600, users:4210, uniqueUsers:4210, likes:2890, sessions:15600, avgSessionMins:9.8, avgSession:9.8, trend:2, rank:12, status:"stable", created:"Jun 2024", initials:"DE", compositeScore:74, scenes:[{name:"Throne Room",pct:35},{name:"Battlefield",pct:30},{name:"Secret Chamber",pct:20},{name:"War Council",pct:15}] },
-  { id:5, name:"Yuki Tanaka", genre:"Anime School Life", tagline:"Class president by day, underground artist by night", messages:54800, totalMessages:198400, users:5340, uniqueUsers:5340, likes:3200, sessions:13400, avgSessionMins:8.6, avgSession:8.6, trend:10, rank:15, status:"growing", created:"Jul 2024", initials:"YT", compositeScore:72, scenes:[{name:"Art Studio",pct:36},{name:"Student Council",pct:28},{name:"Music Room",pct:22},{name:"After School",pct:14}] },
-  { id:6, name:"Zephyr Windrunner", genre:"Adventure Fantasy", tagline:"A sky pirate charting unmapped territories", messages:41200, totalMessages:167300, users:3100, uniqueUsers:3100, likes:1950, sessions:10200, avgSessionMins:8.2, avgSession:8.2, trend:-1, rank:22, status:"stable", created:"Aug 2024", initials:"ZW", compositeScore:65, scenes:[{name:"Airship Deck",pct:40},{name:"Sky Port",pct:25},{name:"Storm Chase",pct:20},{name:"Treasure Hunt",pct:15}] },
-  { id:7, name:"Nyx Shadowmere", genre:"Gothic Fantasy", tagline:"A vampire noble navigating a crumbling aristocracy", messages:28900, totalMessages:86700, users:2450, uniqueUsers:2450, likes:1620, sessions:7200, avgSessionMins:9.4, avgSession:9.4, trend:45, rank:18, status:"growing", created:"Oct 2024", initials:"NS", compositeScore:61, scenes:[{name:"Gothic Manor",pct:38},{name:"Midnight Ball",pct:28},{name:"Blood Garden",pct:20},{name:"Crypt",pct:14}] },
-  { id:8, name:"Rin Akari", genre:"Slice of Life", tagline:"A barista with a mysterious past and a warm smile", messages:18300, totalMessages:54900, users:2100, uniqueUsers:2100, likes:980, sessions:5100, avgSessionMins:7.2, avgSession:7.2, trend:-8, rank:35, status:"declining", created:"Sep 2024", initials:"RA", compositeScore:48, scenes:[{name:"Coffee Shop",pct:45},{name:"City Walk",pct:25},{name:"Rooftop Sunset",pct:18},{name:"Late Night Talk",pct:12}] },
-  { id:9, name:"Thorne Blackwood", genre:"Dark Romance", tagline:"A brooding alchemist with forbidden knowledge", messages:8700, totalMessages:21800, users:1200, uniqueUsers:1200, likes:670, sessions:2400, avgSessionMins:7.8, avgSession:7.8, trend:0, rank:48, status:"new", created:"Dec 2024", initials:"TB", compositeScore:35, scenes:[{name:"Alchemy Lab",pct:42},{name:"Forbidden Library",pct:28},{name:"Moonlit Garden",pct:18},{name:"Hidden Passage",pct:12}] },
-  { id:10, name:"Aria Celestine", genre:"Fantasy Healer", tagline:"A divine healer torn between duty and desire", messages:4900, totalMessages:9800, users:890, uniqueUsers:890, likes:410, sessions:1300, avgSessionMins:6.8, avgSession:6.8, trend:0, rank:67, status:"new", created:"Jan 2025", initials:"AC", compositeScore:28, scenes:[{name:"Temple Sanctuary",pct:40},{name:"Healing Gardens",pct:30},{name:"Village Square",pct:18},{name:"Battlefield Triage",pct:12}] },
+  { id:1, name:"EXV Enemy Prince", genre:"Original Fantasy", tagline:"the prince you once loved", messages:57400000, totalMessages:57400000, users:892000, uniqueUsers:892000, likes:184000, sessions:12400000, avgSessionMins:14.2, avgSession:14.2, trend:12, rank:1, status:"thriving", created:"2023", initials:"EP", compositeScore:98, scenes:[{name:"Throne Confrontation",pct:32},{name:"Secret Meeting",pct:28},{name:"Battlefield",pct:24},{name:"Palace Gardens",pct:16}] },
+  { id:2, name:"JJK Toji Fushiguro", genre:"JJK", tagline:"he hates this arranged marriage", messages:55500000, totalMessages:55500000, users:864000, uniqueUsers:864000, likes:178000, sessions:11800000, avgSessionMins:13.8, avgSession:13.8, trend:8, rank:2, status:"thriving", created:"2023", initials:"TF", compositeScore:96, scenes:[{name:"Arranged Marriage",pct:35},{name:"Training",pct:26},{name:"Domestic Life",pct:23},{name:"Mission",pct:16}] },
+  { id:3, name:"JJK Satoru Gojo", genre:"JJK", tagline:"you agreed to be his roommate", messages:48700000, totalMessages:48700000, users:782000, uniqueUsers:782000, likes:162000, sessions:10600000, avgSessionMins:13.4, avgSession:13.4, trend:6, rank:3, status:"thriving", created:"2023", initials:"SG", compositeScore:94, scenes:[{name:"Roommate Chaos",pct:34},{name:"Late Night Talks",pct:28},{name:"Mission Together",pct:22},{name:"Morning Routine",pct:16}] },
+  { id:4, name:"JJK Toji Zenin", genre:"JJK", tagline:"your annoyingly good-looking bodyguard", messages:39300000, totalMessages:39300000, users:648000, uniqueUsers:648000, likes:142000, sessions:8900000, avgSessionMins:12.6, avgSession:12.6, trend:10, rank:4, status:"thriving", created:"2023", initials:"TZ", compositeScore:91, scenes:[{name:"Protection Detail",pct:36},{name:"Sparring",pct:26},{name:"Undercover",pct:22},{name:"Downtime",pct:16}] },
+  { id:5, name:"JJK Satoru Gojo", genre:"JJK", tagline:"he doesn't know he's a dad. yet", messages:32200000, totalMessages:32200000, users:542000, uniqueUsers:542000, likes:128000, sessions:7400000, avgSessionMins:12.2, avgSession:12.2, trend:15, rank:5, status:"thriving", created:"2024", initials:"SG", compositeScore:89, scenes:[{name:"The Reveal",pct:38},{name:"Co-Parenting",pct:28},{name:"Family Moments",pct:20},{name:"Past Together",pct:14}] },
+  { id:6, name:"EHV Rescued Elf", genre:"Original Fantasy", tagline:"the elf you saved from other humans", messages:31300000, totalMessages:31300000, users:524000, uniqueUsers:524000, likes:124000, sessions:7200000, avgSessionMins:11.8, avgSession:11.8, trend:18, rank:6, status:"thriving", created:"2024", initials:"RE", compositeScore:87, scenes:[{name:"First Rescue",pct:32},{name:"Learning Trust",pct:30},{name:"Elven Homeland",pct:22},{name:"Protection",pct:16}] },
+  { id:7, name:"JJK Suguru & Satoru", genre:"JJK", tagline:"the three of you against the world. and yet", messages:26100000, totalMessages:26100000, users:436000, uniqueUsers:436000, likes:112000, sessions:6100000, avgSessionMins:12.8, avgSession:12.8, trend:5, rank:7, status:"thriving", created:"2023", initials:"SS", compositeScore:84, scenes:[{name:"High School Days",pct:34},{name:"The Rift",pct:28},{name:"Mission Trio",pct:24},{name:"Aftermath",pct:14}] },
+  { id:8, name:"JJK Sukuna", genre:"JJK", tagline:"you were his concubine, once upon a time", messages:25400000, totalMessages:25400000, users:418000, uniqueUsers:418000, likes:108000, sessions:5800000, avgSessionMins:11.4, avgSession:11.4, trend:4, rank:8, status:"thriving", created:"2023", initials:"SK", compositeScore:82, scenes:[{name:"Heian Era",pct:36},{name:"Modern Encounter",pct:26},{name:"Power Struggle",pct:22},{name:"Quiet Moments",pct:16}] },
+  { id:9, name:"MC Miguel O'Hara", genre:"Marvel/DC", tagline:"obviously you're still his", messages:23500000, totalMessages:23500000, users:396000, uniqueUsers:396000, likes:102000, sessions:5400000, avgSessionMins:11.2, avgSession:11.2, trend:7, rank:9, status:"thriving", created:"2024", initials:"MO", compositeScore:80, scenes:[{name:"Spider Society HQ",pct:34},{name:"Late Patrol",pct:28},{name:"Dimension Hop",pct:22},{name:"Rooftop",pct:16}] },
+  { id:10, name:"OS The Monster", genre:"Original Fantasy", tagline:"you've got a monster in love with you", messages:21800000, totalMessages:21800000, users:372000, uniqueUsers:372000, likes:96000, sessions:5000000, avgSessionMins:11.6, avgSession:11.6, trend:22, rank:10, status:"thriving", created:"2024", initials:"TM", compositeScore:78, scenes:[{name:"First Encounter",pct:32},{name:"Hidden Lair",pct:30},{name:"Protecting You",pct:24},{name:"Gentle Moments",pct:14}] },
 ];
 
 // ─── Chart Data ───────────────────────────────────────────
 const newUsersData = [
-  {month:'Aug',users:12400},{month:'Sep',users:14200},{month:'Oct',users:16800},
-  {month:'Nov',users:19400},{month:'Dec',users:21200},{month:'Jan',users:23891}
+  {month:'Aug',users:1240000},{month:'Sep',users:1420000},{month:'Oct',users:1580000},
+  {month:'Nov',users:1680000},{month:'Dec',users:1780000},{month:'Jan',users:1890000}
 ];
 
 const pageViewsData = [
-  {day:'Jan 1',views:890},{day:'Jan 2',views:1020},{day:'Jan 3',views:1150},{day:'Jan 4',views:1420},{day:'Jan 5',views:1580},
-  {day:'Jan 6',views:1340},{day:'Jan 7',views:1100},{day:'Jan 8',views:980},{day:'Jan 9',views:1240},{day:'Jan 10',views:1380},
-  {day:'Jan 11',views:1620},{day:'Jan 12',views:1890},{day:'Jan 13',views:1750},{day:'Jan 14',views:1480},{day:'Jan 15',views:1320},
-  {day:'Jan 16',views:1190},{day:'Jan 17',views:1410},{day:'Jan 18',views:1680},{day:'Jan 19',views:2010},{day:'Jan 20',views:1920},
-  {day:'Jan 21',views:1650},{day:'Jan 22',views:1430},{day:'Jan 23',views:1290},{day:'Jan 24',views:1520},{day:'Jan 25',views:1780},
-  {day:'Jan 26',views:2100},{day:'Jan 27',views:1960},{day:'Jan 28',views:1740},{day:'Jan 29',views:1580},{day:'Jan 30',views:1850}
+  {day:'Jan 1',views:89000},{day:'Jan 2',views:102000},{day:'Jan 3',views:115000},{day:'Jan 4',views:142000},{day:'Jan 5',views:158000},
+  {day:'Jan 6',views:134000},{day:'Jan 7',views:110000},{day:'Jan 8',views:98000},{day:'Jan 9',views:124000},{day:'Jan 10',views:138000},
+  {day:'Jan 11',views:162000},{day:'Jan 12',views:189000},{day:'Jan 13',views:175000},{day:'Jan 14',views:148000},{day:'Jan 15',views:132000},
+  {day:'Jan 16',views:119000},{day:'Jan 17',views:141000},{day:'Jan 18',views:168000},{day:'Jan 19',views:201000},{day:'Jan 20',views:192000},
+  {day:'Jan 21',views:165000},{day:'Jan 22',views:143000},{day:'Jan 23',views:129000},{day:'Jan 24',views:152000},{day:'Jan 25',views:178000},
+  {day:'Jan 26',views:210000},{day:'Jan 27',views:196000},{day:'Jan 28',views:174000},{day:'Jan 29',views:158000},{day:'Jan 30',views:185000}
 ];
 
 const trendingTropes = [
-  {name:"Dark Academia",growth:45,genre:"Aesthetic"},
-  {name:"Enemies to Lovers",growth:38,genre:"Romance"},
-  {name:"Isekai Adventure",growth:32,genre:"Anime"},
-  {name:"Morally Grey Characters",growth:28,genre:"Drama"},
-  {name:"Found Family",growth:24,genre:"Wholesome"},
-  {name:"Cyberpunk Noir",growth:20,genre:"Sci-Fi"},
-  {name:"Magical Realism",growth:18,genre:"Fantasy"},
-  {name:"Slow Burn Romance",growth:15,genre:"Romance"},
+  {name:"Arranged Marriage",growth:52,genre:"Romance"},
+  {name:"Enemies to Lovers",growth:41,genre:"Romance"},
+  {name:"Bodyguard / Protector",growth:36,genre:"Romance"},
+  {name:"Morally Grey Characters",growth:32,genre:"Drama"},
+  {name:"Found Family",growth:28,genre:"Wholesome"},
+  {name:"Monster / Non-Human Love",growth:24,genre:"Fantasy"},
+  {name:"Roommate AU",growth:21,genre:"Romance"},
+  {name:"Slow Burn Romance",growth:18,genre:"Romance"},
 ];
 
 const voiceData = [
@@ -200,68 +200,68 @@ const voiceData = [
 ];
 
 const nonChatFeatures = [
-  {name:"Imagine",usage:12400,color:"#8b5cf6"},
-  {name:"Group Chats",usage:8900,color:"#6366f1"},
-  {name:"Labs",usage:3200,color:"#a78bfa"},
-  {name:"Voice Calls",usage:2100,color:"#c084fc"},
+  {name:"Imagine",usage:1240000,color:"#8b5cf6"},
+  {name:"Group Chats",usage:890000,color:"#6366f1"},
+  {name:"Labs",usage:320000,color:"#a78bfa"},
+  {name:"Voice Calls",usage:210000,color:"#c084fc"},
 ];
 
 const leaderboardEntries = [
-  {rank:1,name:"NightWeaver",avatar:"NW",score:9840,messages:198400,tier:"Legendary",isYou:false},
-  {rank:2,name:"StoryCraft",avatar:"SC",score:8920,messages:156200,tier:"Legendary",isYou:false},
-  {rank:3,name:"AetherForge",avatar:"AF",score:8450,messages:142300,tier:"Elite",isYou:true},
-  {rank:4,name:"DreamMaker",avatar:"DM",score:8200,messages:138900,tier:"Elite",isYou:false},
-  {rank:5,name:"PixelSoul",avatar:"PS",score:7650,messages:121700,tier:"Elite",isYou:false},
-  {rank:6,name:"MysticPen",avatar:"MP",score:7100,messages:108300,tier:"Elite",isYou:false},
-  {rank:7,name:"CharaVerse",avatar:"CV",score:6800,messages:96100,tier:"Established",isYou:false},
-  {rank:8,name:"InkWeaver",avatar:"IW",score:6300,messages:87500,tier:"Established",isYou:false},
-  {rank:9,name:"SoulForge",avatar:"SF",score:5900,messages:79200,tier:"Established",isYou:false},
-  {rank:10,name:"VoidWalker",avatar:"VW",score:5400,messages:72800,tier:"Established",isYou:false},
+  {rank:1,name:"rosa",avatar:"RO",score:18200,messages:1818200000,tier:"Legendary",isYou:true},
+  {rank:2,name:"landon",avatar:"LA",score:16400,messages:1420000000,tier:"Legendary",isYou:false},
+  {rank:3,name:"coffinn",avatar:"CO",score:14800,messages:1180000000,tier:"Legendary",isYou:false},
+  {rank:4,name:"strxwberry",avatar:"ST",score:13200,messages:980000000,tier:"Legendary",isYou:false},
+  {rank:5,name:"sirenhead",avatar:"SI",score:11600,messages:820000000,tier:"Legendary",isYou:false},
+  {rank:6,name:"ghostpages",avatar:"GP",score:10400,messages:740000000,tier:"Elite",isYou:false},
+  {rank:7,name:"theshadows",avatar:"TS",score:9800,messages:680000000,tier:"Elite",isYou:false},
+  {rank:8,name:"velvetink",avatar:"VI",score:9200,messages:620000000,tier:"Elite",isYou:false},
+  {rank:9,name:"moonlitpen",avatar:"ML",score:8600,messages:560000000,tier:"Elite",isYou:false},
+  {rank:10,name:"stardustai",avatar:"SA",score:8100,messages:510000000,tier:"Elite",isYou:false},
 ];
 
 const relatedCreators = [
-  {name:"NightWeaver",avatar:"NW",overlap:72,followers:18420,topChar:"Shadow Empress"},
-  {name:"DreamMaker",avatar:"DM",overlap:64,followers:15200,topChar:"Astral Knight"},
-  {name:"StoryCraft",avatar:"SC",overlap:58,followers:21300,topChar:"Crimson Mage"},
-  {name:"MysticPen",avatar:"MP",overlap:45,followers:9800,topChar:"Fate Weaver"},
+  {name:"landon",avatar:"LA",overlap:74,followers:380000,topCharacter:"JJK Geto Suguru",topChar:"JJK Geto Suguru"},
+  {name:"coffinn",avatar:"CO",overlap:68,followers:320000,topCharacter:"MHA Dabi",topChar:"MHA Dabi"},
+  {name:"strxwberry",avatar:"ST",overlap:62,followers:290000,topCharacter:"OS Vampire Prince",topChar:"OS Vampire Prince"},
+  {name:"ghostpages",avatar:"GP",overlap:51,followers:210000,topCharacter:"DC Nightwing",topChar:"DC Nightwing"},
 ];
 
 const notifications = [
-  {id:1,type:"milestone",message:"Kaito Shadowblade hit 100K messages!",time:"2 hours ago",read:false},
-  {id:2,type:"rank",message:"You ranked #3 in Season 4!",time:"1 day ago",read:false},
+  {id:1,type:"milestone",message:"EXV Enemy Prince crossed 57M chats!",time:"2 hours ago",read:false},
+  {id:2,type:"rank",message:"You ranked #1 in Season 4!",time:"1 day ago",read:false},
   {id:3,type:"announcement",message:"New: Creator Analytics v2 is now live",time:"2 days ago",read:true},
-  {id:4,type:"growth",message:"Luna Starweaver gained 500 new users this week",time:"3 days ago",read:true},
-  {id:5,type:"milestone",message:"You reached 12,000 followers!",time:"5 days ago",read:true},
+  {id:4,type:"growth",message:"OS The Monster gained 48K new users this week",time:"3 days ago",read:true},
+  {id:5,type:"milestone",message:"You reached 452K followers!",time:"5 days ago",read:true},
   {id:6,type:"announcement",message:"MVP Creator meetup: Feb 15th — RSVP now",time:"1 week ago",read:true},
-  {id:7,type:"rank",message:"Sakura Mitsuki entered the Top 10 Most Liked",time:"1 week ago",read:true},
-  {id:8,type:"system",message:"Priority Support SLA upgraded to 4-hour response",time:"2 weeks ago",read:true},
+  {id:7,type:"rank",message:"EHV Rescued Elf entered the Top 10 Most Liked",time:"1 week ago",read:true},
+  {id:8,type:"system",message:"Priority Support SLA upgraded to 1-hour response",time:"2 weeks ago",read:true},
 ];
 
 const aiInsights = [
-  {title:"Weekend Engagement Spike",description:"Your anime characters get 3.2x more engagement on Saturdays. Consider publishing new characters or updates on Friday evenings to ride the weekend wave.",type:"timing",color:"#8b5cf6"},
-  {title:"Romance is Trending",description:"Sakura Mitsuki's growth rate (+22%) outpaces your portfolio average. Romance anime characters are seeing platform-wide growth — consider creating more in this genre.",type:"trend",color:"#6366f1"},
-  {title:"Voice Adoption Opportunity",description:"Only 13% of your users interact via voice, while top creators average 28%. Adding custom voices to Kaito and Luna could boost session length by ~18%.",type:"opportunity",color:"#a78bfa"},
-  {title:"Scene Diversity Pays Off",description:"Characters with 4+ scenes see 40% longer sessions. Draven and Zephyr could benefit from additional scene variety.",type:"optimization",color:"#c084fc"},
+  {title:"Weekend Engagement Spike",description:"Your JJK characters get 3.8x more engagement on Saturdays. Consider publishing new characters or updates on Friday evenings to ride the weekend wave.",type:"timing",color:"#8b5cf6"},
+  {title:"Original Characters Surging",description:"EHV Rescued Elf's growth rate (+18%) outpaces your portfolio average. Original fantasy characters are seeing huge platform-wide growth — your originals are a hit.",type:"trend",color:"#6366f1"},
+  {title:"Voice Adoption Opportunity",description:"Only 11% of your users interact via voice, while top creators average 28%. Adding custom voices to Enemy Prince and Toji could boost session length by ~20%.",type:"opportunity",color:"#a78bfa"},
+  {title:"500+ Characters, Top 10 Drive 85%",description:"Your top 10 characters account for 85% of total interactions. Consider featuring mid-tier gems like Hobie Brown and Bruce Wayne more prominently.",type:"optimization",color:"#c084fc"},
 ];
 
 const supportTickets = [
-  {id:"TKT-1042",subject:"Character voice not loading for Kaito",status:"resolved",date:"Jan 28, 2026",priority:"high",response:"Resolved in 2 hours"},
-  {id:"TKT-1038",subject:"Analytics showing incorrect session counts",status:"in_progress",date:"Jan 25, 2026",priority:"medium",response:"Under investigation"},
-  {id:"TKT-1035",subject:"Request: Custom avatar upload for Nyx",status:"open",date:"Jan 22, 2026",priority:"low",response:"Pending review"},
+  {id:"TKT-2042",subject:"Character voice not loading for Enemy Prince",status:"resolved",date:"Jan 28, 2026",priority:"high",response:"Resolved in 45 minutes"},
+  {id:"TKT-2038",subject:"Analytics showing incorrect session counts",status:"in_progress",date:"Jan 25, 2026",priority:"medium",response:"Under investigation"},
+  {id:"TKT-2035",subject:"Request: Bulk character management for 500+ bots",status:"open",date:"Jan 22, 2026",priority:"low",response:"Pending review"},
 ];
 
 const discordInfo = {
-  members: 2847,
-  online: 342,
+  members: 24800,
+  online: 3420,
   events: [
-    {title:"MVP Creator Meetup",date:"Feb 15, 2026",time:"3:00 PM EST",attendees:89,type:"meetup"},
-    {title:"Character Building Workshop",date:"Feb 22, 2026",time:"1:00 PM EST",attendees:124,type:"workshop"},
-    {title:"Analytics Deep Dive AMA",date:"Mar 1, 2026",time:"4:00 PM EST",attendees:56,type:"ama"},
+    {title:"MVP Creator Meetup",date:"Feb 15, 2026",time:"3:00 PM EST",attendees:890,type:"meetup"},
+    {title:"Character Building Workshop",date:"Feb 22, 2026",time:"1:00 PM EST",attendees:1240,type:"workshop"},
+    {title:"Analytics Deep Dive AMA",date:"Mar 1, 2026",time:"4:00 PM EST",attendees:560,type:"ama"},
   ],
   highlights: [
-    {user:"NightWeaver",message:"Just hit 200K messages on Shadow Empress! Thanks for all the support 💜",likes:47},
-    {user:"StoryCraft",message:"Pro tip: Adding scene variety increased my avg session by 35%",likes:83},
-    {user:"DreamMaker",message:"The new analytics dashboard is incredible for tracking growth",likes:62},
+    {user:"landon",message:"Just hit 1B messages total! rosa's dashboard inspired me to grind 💜",likes:470},
+    {user:"coffinn",message:"Pro tip: Adding scene variety increased my avg session by 35%",likes:830},
+    {user:"strxwberry",message:"The new analytics dashboard is incredible for tracking growth",likes:620},
   ],
 };
 
@@ -286,10 +286,10 @@ const tierPerks = [
 ];
 
 const recommendedTopics = [
-  {title:"Dark Academia Roommate",desc:"Dark academia is up 45% this month. Create a mysterious scholar character.",match:"92%"},
-  {title:"Isekai Adventurer",desc:"Isekai continues to trend. Your fantasy style would fit perfectly.",match:"88%"},
-  {title:"Enemies to Lovers Rival",desc:"This trope is surging (+38%). Consider a rival character with romantic tension.",match:"85%"},
-  {title:"Cyberpunk Detective",desc:"Cyberpunk noir is emerging. Expand into sci-fi with your dark storytelling.",match:"76%"},
+  {title:"Demon Slayer Hashira",desc:"KNY is up 52% this month. Your dark anime style would crush a Hashira character.",match:"94%"},
+  {title:"Enemies to Lovers Mafia",desc:"Mafia AU trope is surging (+41%). Your arranged marriage bots already dominate this space.",match:"91%"},
+  {title:"Solo Leveling Hunters",desc:"Solo Leveling hype is massive. Create a hunter rival or partner character.",match:"87%"},
+  {title:"Chainsaw Man Devil",desc:"CSM is trending on the platform. A devil contract character fits your dark romance style.",match:"82%"},
 ];
 
 const bestPractices = [
@@ -301,6 +301,7 @@ const bestPractices = [
 
 // ─── Utility Functions & Hooks ────────────────────────────
 const formatNumber = (n) => {
+  if (n >= 1000000000) return (n / 1000000000).toFixed(1) + 'B';
   if (n >= 1000000) return (n / 1000000).toFixed(1) + 'M';
   if (n >= 1000) return (n / 1000).toFixed(1) + 'K';
   return n.toString();
@@ -852,7 +853,7 @@ function DashboardHome({ onNavigate }) {
           React.createElement(IconSparkles, { size: 22, className: "text-purple-400" }),
           React.createElement("span", { className: "text-[#f1f0f5] font-medium" },
             "Season 4 is live! Leaderboard resets monthly. Current rank: ",
-            React.createElement("span", { className: "text-purple-400 font-bold" }, "#3")
+            React.createElement("span", { className: "text-purple-400 font-bold" }, "#1")
           )
         ),
         React.createElement("button", {
@@ -870,7 +871,7 @@ function DashboardHome({ onNavigate }) {
       React.createElement(StatCard, { title: "Monthly Messages", value: "89,432", change: "+18.2%", icon: IconMessage, delay: 0 }),
       React.createElement(StatCard, { title: "Unique Users", value: "23,891", change: "+12.4%", icon: IconUsers, delay: 1 }),
       React.createElement(StatCard, { title: "Followers", value: "12,847", change: "+342", icon: IconHeart, delay: 2 }),
-      React.createElement(StatCard, { title: "Season Rank", value: "#3", change: "Top 1%", icon: IconTrophy, delay: 3 })
+      React.createElement(StatCard, { title: "Season Rank", value: "#1", change: "Top 0.01%", icon: IconTrophy, delay: 3 })
     ),
 
     // Quick Actions Row
@@ -1498,13 +1499,13 @@ function LeaderboardPage() {
         React.createElement("div", { className: "text-center md:text-left" },
           React.createElement("h3", { className: "text-lg font-bold text-[#f1f0f5]" }, "Your Position: ",
             React.createElement("span", { className: "text-purple-400" }, "#" + yourEntry.rank),
-            " of 1,247 creators"
+            " of 12,847 creators"
           ),
-          React.createElement("p", { className: "text-sm text-[#a09bb0] mt-1" }, "842 points to reach #2")
+          React.createElement("p", { className: "text-sm text-[#a09bb0] mt-1" }, "1,800 points ahead of #2")
         ),
         React.createElement("div", { className: "flex items-center gap-2 bg-[#0f0d1a] px-4 py-2 rounded-lg" },
           React.createElement(IconArrowUp, { size: 16, className: "text-green-400" }),
-          React.createElement("span", { className: "text-sm text-green-400 font-medium" }, "Up 2 positions from last season")
+          React.createElement("span", { className: "text-sm text-green-400 font-medium" }, "Holding #1 for 3 consecutive seasons")
         )
       )
     )
@@ -1515,20 +1516,20 @@ function LeaderboardPage() {
 // --- 4. TierStatusPage Component ---
 function TierStatusPage() {
   var currentMetrics = [
-    { label: "Total Interactions", current: 547000, required: 750000 },
-    { label: "Unique Users", current: 23800, required: 35000 },
-    { label: "Active Months", current: 10, required: 12 },
-    { label: "Community Score", current: 92, required: 95 },
+    { label: "Total Interactions", current: 1818200000, required: 1000000000 },
+    { label: "Unique Users", current: 1890000, required: 500000 },
+    { label: "Active Months", current: 24, required: 12 },
+    { label: "Community Score", current: 98, required: 95 },
   ];
 
   var milestones = [
-    { label: "500K Total Interactions", achieved: true },
-    { label: "10K Followers", achieved: true },
-    { label: "Top 5 Season Rank", achieved: true },
-    { label: "1M Interactions", achieved: false, progress: 55 },
+    { label: "1B Total Interactions", achieved: true },
+    { label: "100K Followers", achieved: true },
+    { label: "#1 Season Rank", achieved: true },
+    { label: "2B Interactions", achieved: false, progress: 91 },
   ];
 
-  var progressToLegendary = 78;
+  var progressToLegendary = 100;
 
   return React.createElement("div", { className: "space-y-6" },
 
@@ -1544,20 +1545,19 @@ function TierStatusPage() {
           React.createElement(IconStar, { size: 16, className: "text-white" })
         )
       ),
-      React.createElement("h2", { className: "text-3xl font-bold text-[#f1f0f5] mb-1" }, "Elite"),
-      React.createElement("p", { className: "text-[#a09bb0]" }, "Since October 2024"),
+      React.createElement("h2", { className: "text-3xl font-bold text-[#f1f0f5] mb-1" }, "Legendary"),
+      React.createElement("p", { className: "text-[#a09bb0]" }, "Since 2023"),
       React.createElement("div", { className: "flex justify-center gap-1 mt-3" },
-        [1,2,3,4].map(function(s) {
-          return React.createElement(IconStar, { key: s, size: 18, className: "text-purple-400" });
-        }),
-        React.createElement(IconStar, { size: 18, className: "text-[#2d2640]" })
+        [1,2,3,4,5].map(function(s) {
+          return React.createElement(IconStar, { key: s, size: 18, className: "text-yellow-400" });
+        })
       )
     ),
 
     // Progress to Next Tier
     React.createElement(Card, { className: "p-6 animate-fade-in-up stagger-1" },
       React.createElement("div", { className: "flex items-center justify-between mb-4" },
-        React.createElement("h3", { className: "text-lg font-semibold text-[#f1f0f5]" }, "Progress to Legendary"),
+        React.createElement("h3", { className: "text-lg font-semibold text-[#f1f0f5]" }, "Legendary Tier — All Requirements Met"),
         React.createElement("span", { className: "text-sm text-purple-400 font-medium" }, progressToLegendary + "% Complete")
       ),
       React.createElement("div", { className: "mb-4" },
@@ -1601,8 +1601,8 @@ function TierStatusPage() {
             React.createElement("th", { className: "pb-3 text-left text-[#6b6580] font-medium" }, "Perk"),
             React.createElement("th", { className: "pb-3 text-center text-[#6b6580] font-medium" }, "Rising"),
             React.createElement("th", { className: "pb-3 text-center text-[#6b6580] font-medium" }, "Established"),
-            React.createElement("th", { className: "pb-3 text-center text-purple-400 font-bold bg-purple-500/10 rounded-t-lg" }, "Elite"),
-            React.createElement("th", { className: "pb-3 text-center text-yellow-400 font-medium" }, "Legendary")
+            React.createElement("th", { className: "pb-3 text-center text-[#6b6580] font-medium" }, "Elite"),
+            React.createElement("th", { className: "pb-3 text-center text-yellow-400 font-bold bg-yellow-500/10 rounded-t-lg" }, "Legendary")
           )
         ),
         React.createElement("tbody", null,
@@ -1614,8 +1614,8 @@ function TierStatusPage() {
               React.createElement("td", { className: "py-3 pr-4 text-[#f1f0f5]" }, perk.name),
               React.createElement("td", { className: "py-3 text-center text-[#a09bb0]" }, perk.rising),
               React.createElement("td", { className: "py-3 text-center text-[#a09bb0]" }, perk.established),
-              React.createElement("td", { className: "py-3 text-center text-[#f1f0f5] font-medium bg-purple-500/10" }, perk.elite),
-              React.createElement("td", { className: "py-3 text-center text-yellow-400" }, perk.legendary)
+              React.createElement("td", { className: "py-3 text-center text-[#a09bb0]" }, perk.elite),
+              React.createElement("td", { className: "py-3 text-center text-[#f1f0f5] font-medium bg-yellow-500/10" }, perk.legendary)
             );
           })
         )
@@ -2464,7 +2464,7 @@ const Sidebar = ({ collapsed, setCollapsed, activePage, setActivePage }) => {
         </div>
         {!collapsed && (
           <div className="overflow-hidden transition-all duration-300">
-            <div className="text-sm font-semibold text-[#f1f0f5] whitespace-nowrap">AetherForge</div>
+            <div className="text-sm font-semibold text-[#f1f0f5] whitespace-nowrap">rosa</div>
             <span className="inline-flex items-center gap-1 text-[10px] font-semibold px-1.5 py-0.5 rounded bg-[#fbbf24]/15 text-[#fbbf24]">
               <IconCrown size={10} /> Elite
             </span>
